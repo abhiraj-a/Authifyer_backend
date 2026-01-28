@@ -12,9 +12,9 @@ import java.util.Base64;
 
 public class TokenHash {
     @Value("${SERVER.SECRET.KEY}")
-   private static String secret;
+   private String secret;
     private static final String HMAC_ALGO ="HmacSHA256";
-    public static String hash(String token){
+    public  String hash(String token){
         Mac mac = null;
         try {
             mac = Mac.getInstance(HMAC_ALGO);

@@ -22,6 +22,8 @@ public class TokenService {
 
     private final SessionRepo sessionRepo;
 
+    private final TokenHash TokenHash;
+
     public String generateRefreshToken() {
         SecureRandom secureRandom =new SecureRandom();
         byte[] bytes =new byte[128];

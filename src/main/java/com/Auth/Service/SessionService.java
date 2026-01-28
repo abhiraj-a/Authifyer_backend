@@ -28,6 +28,7 @@ public class SessionService {
 
     private final OAuthStorageRepo oAuthStorageRepo;
 
+    private final TokenHash TokenHash;
     public RefreshResult createSession(String authifyerId, String projectId,  HttpServletRequest servletRequest, HttpServletResponse response) {
 
         String refreshToken = tokenService.generateRefreshToken();

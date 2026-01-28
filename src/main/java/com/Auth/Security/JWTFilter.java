@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
 
 @Component
@@ -88,9 +89,9 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
         AccessTokenClaims claims = AccessTokenClaims.builder()
-                .publicSessionId(publicSessionId)
-                .authId(authId)
-                .publicId(publicProjectId)
+                .issued_at(Instant.now())
+                .expires_at(Instant.now().plusSeconds(60))
+                .accessToken(token)
                 .build();
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken=
@@ -101,9 +102,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request,response);
     }
-
-
-
 
     private boolean isPublic(HttpServletRequest request){
         String path = request.getRequestURI();

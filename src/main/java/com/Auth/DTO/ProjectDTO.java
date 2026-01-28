@@ -15,7 +15,7 @@ public class ProjectDTO {
 
     @Data
     @Builder
-    public  class ProjectUserDTO{
+    public static class ProjectUserDTO{
         private String name;
         private String email;
         private Instant signupAt;

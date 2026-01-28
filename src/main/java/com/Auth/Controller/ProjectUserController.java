@@ -16,8 +16,9 @@ public class ProjectUserController {
 
 
     @PostMapping("/register/email")
-    public ResponseEntity<?> passwordRegistration(@RequestBody PasswordProjectRegisterRequest request){
-        return ResponseEntity.ok(projectUserService.signup_email_password(request));
+    public ResponseEntity<?> passwordRegistration(@RequestBody PasswordProjectRegisterRequest request ,HttpServletRequest servletRequest,
+                                                  HttpServletResponse response ){
+        return ResponseEntity.ok(projectUserService.signup_email_password(request,servletRequest,response));
     }
 
 
