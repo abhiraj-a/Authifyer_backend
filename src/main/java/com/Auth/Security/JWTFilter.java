@@ -3,6 +3,7 @@ package com.Auth.Security;
 import com.Auth.Entity.Session;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.JWT.JWTKeyProvider;
+import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.SessionRepo;
 import com.Auth.Service.SessionService;
 import com.Auth.Util.SessionScope;
@@ -70,7 +71,6 @@ public class JWTFilter extends OncePerRequestFilter {
       String authId = decodedJWT.getSubject();
       String publicSessionId = decodedJWT.getClaim("sid").asString();
 
-      String publicProjectId = decodedJWT.getClaim("pid").asString();
       String type =decodedJWT.getClaim("typ").asString();
       Session session =sessionService.getPublicIdCache(publicSessionId);
 
@@ -88,14 +88,12 @@ public class JWTFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        AccessTokenClaims claims = AccessTokenClaims.builder()
-                .issued_at(Instant.now())
-                .expires_at(Instant.now().plusSeconds(60))
-                .accessToken(token)
+        AuthPrincipal principal = AuthPrincipal.builder()
+                .subjectId(authId)
                 .build();
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken=
-                new UsernamePasswordAuthenticationToken(claims,null, Collections.emptyList());
+                new UsernamePasswordAuthenticationToken(principal,null, Collections.emptyList());
 
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

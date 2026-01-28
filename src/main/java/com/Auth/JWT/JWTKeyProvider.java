@@ -7,15 +7,12 @@
     import lombok.Data;
     import lombok.extern.slf4j.Slf4j;
     import org.springframework.stereotype.Component;
-
-    import java.nio.charset.StandardCharsets;
     import java.security.KeyFactory;
     import java.security.KeyPair;
     import java.security.KeyPairGenerator;
     import java.security.NoSuchAlgorithmException;
     import java.security.interfaces.RSAPrivateKey;
     import java.security.interfaces.RSAPublicKey;
-    import java.security.spec.InvalidKeySpecException;
     import java.security.spec.PKCS8EncodedKeySpec;
     import java.security.spec.X509EncodedKeySpec;
     import java.time.LocalDate;

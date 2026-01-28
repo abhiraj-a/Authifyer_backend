@@ -27,6 +27,8 @@ public class GlobalUserService {
 
     private final EmailService emailService;
 
+    private final TokenService tokenService;
+
     public SessionDTO signup(RegisterRequest request,HttpServletRequest servletRequest, HttpServletResponse response) {
 
         GlobalUser user ;
@@ -57,6 +59,7 @@ public class GlobalUserService {
                  .createdAt(Instant.now())
                  .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                  .lastAccessedAt(Instant.now())
+                 .accessTokenClaims(tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken()))
                  .build();
     }
 
@@ -77,6 +80,7 @@ public class GlobalUserService {
                 .publicSessionId(session.getPublicId())
                 .createdAt(Instant.now())
                 .expiresAt(Instant.now().plus(Duration.ofDays(30)))
+                .accessTokenClaims(tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken()))
                 .build();
     }
 }

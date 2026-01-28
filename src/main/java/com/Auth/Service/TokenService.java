@@ -31,7 +31,7 @@ public class TokenService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    public String issueGlobalAccessToken(String refreshToken){
+    public AccessTokenClaims issueGlobalAccessToken(String refreshToken){
 
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
 
@@ -40,7 +40,7 @@ public class TokenService {
         }
         Instant now = Instant.now();
 
-        return JWT.create()
+       String jwt=  JWT.create()
                 .withSubject(session.getSubjectId())
                 .withKeyId(jwtKeyProvider.getKeyId())
                 .withClaim("sid",session.getPublicId())
@@ -49,6 +49,12 @@ public class TokenService {
                 .withExpiresAt(Date.from(now.plusSeconds(60)))
                 .withIssuer("https://localhost:8080")
                 .sign(jwtKeyProvider.getAlgorithm());
+         return AccessTokenClaims.builder()
+                 .accessToken(jwt)
+                 .issued_at(Instant.now())
+                 .expires_at(Instant.now().plusSeconds(60))
+                 .build();
+
     }
 
     public AccessTokenClaims issueAccessToken(String refreshToken) {
@@ -72,7 +78,7 @@ public class TokenService {
        return AccessTokenClaims.builder()
                .accessToken(accessToken)
                .issued_at(Instant.now())
-               .expires_at(Instant.now().plus(60, ChronoUnit.SECONDS))
+               .expires_at(Instant.now().plusSeconds(60))
                .build();
     }
 
