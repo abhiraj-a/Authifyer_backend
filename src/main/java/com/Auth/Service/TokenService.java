@@ -1,0 +1,78 @@
+package com.Auth.Service;
+import com.Auth.Entity.Session;
+import com.Auth.JWT.AccessTokenClaims;
+import com.Auth.JWT.JWTKeyProvider;
+import com.Auth.Repo.SessionRepo;
+import com.Auth.Util.TokenHash;
+import com.auth0.jwt.JWT;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.Date;
+
+
+@Service
+@RequiredArgsConstructor
+public class TokenService {
+
+    private final JWTKeyProvider jwtKeyProvider;
+
+    private final SessionRepo sessionRepo;
+
+    public String generateRefreshToken() {
+        SecureRandom secureRandom =new SecureRandom();
+        byte[] bytes =new byte[128];
+        secureRandom.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    public String issueGlobalAccessToken(String refreshToken){
+
+        Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
+
+        if (session.getRevokedAt() != null) {
+            throw new RuntimeException("Session revoked");
+        }
+        Instant now = Instant.now();
+
+        return JWT.create()
+                .withSubject(session.getSubjectId())
+                .withKeyId(jwtKeyProvider.getKeyId())
+                .withClaim("sid",session.getPublicId())
+                .withClaim("scope" , "global")
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plusSeconds(60)))
+                .withIssuer("https://localhost:8080")
+                .sign(jwtKeyProvider.getAlgorithm());
+    }
+
+    public AccessTokenClaims issueAccessToken(String refreshToken) {
+        Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
+
+        if (session.getRevokedAt() != null) {
+            throw new RuntimeException("Session revoked");
+        }
+        Instant now = Instant.now();
+
+       String accessToken = JWT.create()
+               .withKeyId(jwtKeyProvider.getKeyId())
+                .withSubject(session.getSubjectId())
+                .withClaim("sid",session.getPublicId())
+                .withClaim("pid" , session.getPublicProjectId())
+                .withClaim("scope" , "project")
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plusSeconds(60)))
+                .withIssuer("https://localhost:8080")
+                .sign(jwtKeyProvider.getAlgorithm());
+       return AccessTokenClaims.builder()
+               .accessToken(accessToken)
+               .issued_at(Instant.now())
+               .expires_at(Instant.now().plus(60, ChronoUnit.SECONDS))
+               .build();
+    }
+
+
+}
