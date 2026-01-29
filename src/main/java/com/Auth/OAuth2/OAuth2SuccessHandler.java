@@ -49,7 +49,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         RefreshCookie.set(response, refreshResult.getRawRefreshToken());
 
         String targetUrl = UriComponentsBuilder.fromHttpUrl(frontendURL + "/auth/api/callback")
-                .queryParam("access_token" , jwt)
+                .queryParam("access_token" , jwt.getAccessToken())
                 .queryParam("scope",refreshResult.getSession().getSessionScope())
                 .queryParam("sid",refreshResult.getSession().getPublicId())
                 .queryParam("pid",refreshResult.getSession().getPublicProjectId())

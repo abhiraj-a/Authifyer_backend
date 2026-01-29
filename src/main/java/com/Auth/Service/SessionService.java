@@ -129,6 +129,10 @@ public class SessionService {
         if(scope.equals("global")){
             OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
             if(oAuthStorage!=null){
+                GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseThrow(RuntimeException::new);
+                if (!user.isActive()) {
+                    throw new RuntimeException("Account Disabled. ");
+                }
                 subject = oAuthStorage.getSubjectId();
             }
             else {
@@ -137,6 +141,9 @@ public class SessionService {
                     user=globalUserRepo.findByEmail(oAuthProfile.getEmail()).orElse(null);
                 }
                 if(user!=null){
+                    if (!user.isActive()) {
+                        throw new RuntimeException("Account Disabled.");
+                    }
                     OAuthStorage newLink = OAuthStorage.builder()
                             .createdAt(Instant.now())
                             .email(oAuthProfile.getEmail())

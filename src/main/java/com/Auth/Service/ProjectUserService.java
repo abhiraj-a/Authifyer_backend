@@ -94,7 +94,9 @@ public class ProjectUserService {
         ProjectUser user =projectUserRepo.findByAuthifyerId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         List<Session> sessionList = sessionRepo.findBySubjectId(principal.getSubjectId());
         OAuthStorage oAuthStorage = oAuthStorageRepo.findBySubjectId(principal.getSubjectId());
-        oAuthStorageRepo.delete(oAuthStorage);
+        if(oAuthStorage!=null) {
+            oAuthStorageRepo.delete(oAuthStorage);
+        }
         sessionRepo.deleteAll(sessionList);
         projectUserRepo.delete(user);
     }
