@@ -32,7 +32,6 @@ public class JWTFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true;
         String path = request.getServletPath();
-
         return path.startsWith("/oauth2/")
                 || path.startsWith("/login/oauth2/")
                 || path.startsWith("/authifyer/register/")
@@ -46,34 +45,29 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-
-
         String header = request.getHeader("Authorization");
-
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-
         String token = header.substring(7);
-
         JWTVerifier verifier = JWT.require(keyProvider.getAlgorithm())
                 .withIssuer("http://localhost:8080")
                 .build();
+        DecodedJWT decodedJWT = verifier.verify(token);
 
-      DecodedJWT decodedJWT = verifier.verify(token);
+        String authId = decodedJWT.getSubject();
 
-      String authId = decodedJWT.getSubject();
       String publicSessionId = decodedJWT.getClaim("sid").asString();
 
       String type =decodedJWT.getClaim("typ").asString();
+
       Session session =sessionService.getPublicIdCache(publicSessionId);
 
       if(session.getRevokedAt()!=null){
           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           return;
       }
-
       if(isGlobal(request)&& !type.equals(SessionScope.GLOBAL.toString().toLowerCase())){
           response.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
