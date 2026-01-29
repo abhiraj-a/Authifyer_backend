@@ -33,8 +33,8 @@ public class ProjectUserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@AuthenticationPrincipal AuthPrincipal principal){
-        projectUserService.hardDelete(principal);
+    public ResponseEntity<?> delete(@AuthenticationPrincipal AuthPrincipal principal,HttpServletResponse response){
+        projectUserService.hardDelete(principal, response);
         return ResponseEntity.ok().build();
     }
 

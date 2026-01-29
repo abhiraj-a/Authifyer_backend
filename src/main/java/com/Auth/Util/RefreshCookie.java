@@ -17,7 +17,7 @@ public class RefreshCookie {
                 .secure(true)
                 .maxAge(Duration.ofDays(30))
                 .sameSite("Lax")
-                .path("auth/token/refresh")
+                .path("/authifyer/session/refresh")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
     }
@@ -28,7 +28,7 @@ public class RefreshCookie {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("Lax")
-                .path("/auth/token/refresh")
+                .path("/authifyer/session/refresh")
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

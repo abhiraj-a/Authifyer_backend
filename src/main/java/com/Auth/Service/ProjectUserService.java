@@ -90,13 +90,14 @@ public class ProjectUserService {
     }
 
 
-    public void hardDelete(AuthPrincipal principal) {
+    public void hardDelete(AuthPrincipal principal,HttpServletResponse response) {
         ProjectUser user =projectUserRepo.findByAuthifyerId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         List<Session> sessionList = sessionRepo.findBySubjectId(principal.getSubjectId());
         OAuthStorage oAuthStorage = oAuthStorageRepo.findBySubjectId(principal.getSubjectId());
         if(oAuthStorage!=null) {
             oAuthStorageRepo.delete(oAuthStorage);
         }
+        RefreshCookie.clear(response);
         sessionRepo.deleteAll(sessionList);
         projectUserRepo.delete(user);
     }
