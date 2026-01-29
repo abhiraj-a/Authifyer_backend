@@ -1,10 +1,8 @@
 package com.Auth.Security;
 
 import com.Auth.Entity.Session;
-import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.JWT.JWTKeyProvider;
 import com.Auth.Principal.AuthPrincipal;
-import com.Auth.Repo.SessionRepo;
 import com.Auth.Service.SessionService;
 import com.Auth.Util.SessionScope;
 import com.auth0.jwt.JWT;
@@ -16,14 +14,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Collections;
 
 @Component

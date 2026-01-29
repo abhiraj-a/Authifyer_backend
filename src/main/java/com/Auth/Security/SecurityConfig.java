@@ -30,8 +30,10 @@ public class SecurityConfig {
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers(
-                                "/authifyer/register/**",
-                                "/authifyer/login/**",
+                                "/authifyer/global/register/**",
+                                "/authifyer/project/register/**",
+                                "/authifyer/project/login/**",
+                                "/authifyer/project/login/**",
                                 "/authifyer/session/refresh/**",
                                 "/oauth2/**",
                                 "/login/**"

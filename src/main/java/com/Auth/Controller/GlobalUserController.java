@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/authifyer")
+@RequestMapping("/authifyer/global")
 public class GlobalUserController {
 
     private final GlobalUserService globalUserService;

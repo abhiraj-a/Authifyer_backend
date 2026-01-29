@@ -10,11 +10,12 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/authifyer")
 public class JWTController {
     private final TokenService tokenService;
 
     private final JWKSProvider jwksProvider;
-    @PostMapping("/authifyer/jwt/refresh-jwt")
+    @PostMapping("/jwt/refresh-jwt")
     public ResponseEntity<?> refreshJWT(@CookieValue("refresh_token") String refreshToken){
 
         if (refreshToken == null || refreshToken.isBlank()) {

@@ -9,7 +9,6 @@ import java.util.List;
 public class ProjectCreationRequest {
 
     private  String projectName;
-    private List<OAuthProvider> providers;
+    private List<OAuthProvider> enableProvider;
     private boolean emailPasswordEnabled;
-
 }

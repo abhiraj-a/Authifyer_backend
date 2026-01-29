@@ -30,6 +30,7 @@ public class ProjectService {
                 .owner(owner)
                 .publishableKey(publishableKey)
                 .name(projectCreationRequest.getProjectName())
+                .enabledProviders(projectCreationRequest.getEnableProvider())
                 .build();
 
         projectRepo.save(p);
@@ -37,7 +38,7 @@ public class ProjectService {
         return  ProjectCreationResponse.builder()
                 .projectName(projectCreationRequest.getProjectName())
                 .createdAt(Instant.now())
-                .providers(projectCreationRequest.getProviders())
+                .providers(projectCreationRequest.getEnableProvider())
                 .emailPasswordEnabled(projectCreationRequest.isEmailPasswordEnabled())
                 .publishableKey(publishableKey)
                 .build();

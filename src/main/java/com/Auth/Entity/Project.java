@@ -1,5 +1,6 @@
 package com.Auth.Entity;
 
+import com.Auth.Util.OAuthProvider;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,4 +43,7 @@ public class Project {
             fetch = FetchType.LAZY
     )
     private List<ProjectUser> projectUsers;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private List<OAuthProvider> enabledProviders;
 }

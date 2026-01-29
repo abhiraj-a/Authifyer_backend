@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.Map;
 
 @RestController
-@RequestMapping("auth/session")
+@RequestMapping("authifyer/session")
 @RequiredArgsConstructor
 public class SessionController {
     private final SessionService sessionService;

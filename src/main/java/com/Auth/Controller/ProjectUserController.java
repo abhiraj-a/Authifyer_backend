@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/authifyer")
+@RequestMapping("/authifyer/project")
 @RequiredArgsConstructor
 public class ProjectUserController {
     private final ProjectUserService projectUserService;
@@ -26,8 +26,6 @@ public class ProjectUserController {
     @PostMapping("/login/email")
     public ResponseEntity<?> passwordLogin(@RequestBody PasswordProjectLoginRequestDTO request , HttpServletRequest servletRequest,
                                            HttpServletResponse response){
-
-
         return ResponseEntity.
                 ok(projectUserService.login_email_password(request,servletRequest,response));
     }
