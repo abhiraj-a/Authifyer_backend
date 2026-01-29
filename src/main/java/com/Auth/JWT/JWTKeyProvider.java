@@ -32,7 +32,6 @@
 
         @PostConstruct
         public  void init(){
-
             List<JWTKey> keys =jwtKeyRepo.findAllByIsActiveTrue();
             if(keys.isEmpty()){
                 generateKey();

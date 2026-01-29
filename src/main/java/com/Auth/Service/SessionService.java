@@ -116,9 +116,7 @@ public class SessionService {
     }
 
     @Transactional
-    public RefreshResult createOAuthSession(HttpServletRequest request, OAuthProfile oAuthProfile) {
-
-        String publicProjectId= request.getParameter("state");
+    public RefreshResult createOAuthSession(HttpServletRequest request, OAuthProfile oAuthProfile,String publicProjectId) {
         boolean isGlobal = publicProjectId==null||publicProjectId.isBlank();
         String scope = isGlobal?"global":"project";
 

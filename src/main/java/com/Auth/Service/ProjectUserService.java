@@ -1,8 +1,6 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
 import com.Auth.Entity.*;
-import com.Auth.JWT.TokenPair;
-import com.Auth.Repo.OAuthStorageRepo;
 import com.Auth.Repo.ProjectRepo;
 import com.Auth.Repo.ProjectUserRepo;
 import com.Auth.Repo.VerificationTokenRepo;

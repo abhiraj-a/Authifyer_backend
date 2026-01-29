@@ -1,5 +1,6 @@
 package com.Auth.Security;
 
+import com.Auth.OAuth2.CustomAuthorizationRequestResolver;
 import com.Auth.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     private  final JWTFilter jwtFilter;
     private final OAuth2SuccessHandler successHandler;
+    private final CustomAuthorizationRequestResolver requestResolver;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
@@ -30,16 +32,21 @@ public class SecurityConfig {
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers(
-                                "/authifyer/global/register/**",
+                                "/authifyer/global/signup",
+                                "/authifyer/global/login",
                                 "/authifyer/project/register/**",
                                 "/authifyer/project/login/**",
-                                "/authifyer/project/login/**",
-                                "/authifyer/session/refresh/**",
+                                "/authifyer/session/refresh",
+                                "/authifyer/jwt/**",
+                                "/authifyer/.well-known/jwks.json",
+                                "/api/auth/verify-email/**",
                                 "/oauth2/**",
                                 "/login/**"
                         ).permitAll().anyRequest().authenticated())
                .oauth2Login(oauth2->
-                       oauth2.successHandler(successHandler)
+                       oauth2.authorizationEndpoint(o->
+                                       o.authorizationRequestResolver(requestResolver))
+                               .successHandler(successHandler)
                                .failureUrl("/authifyer/login/oauth/failure"))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
