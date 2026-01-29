@@ -42,5 +42,7 @@ public class GlobalUser implements VerifyUser {
 
     private String providerUserId;
 
+    @Builder.Default
+    private boolean isActive=true;
 
 }

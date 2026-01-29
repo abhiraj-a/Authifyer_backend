@@ -1,21 +1,17 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
 import com.Auth.Entity.*;
-import com.Auth.Repo.ProjectRepo;
-import com.Auth.Repo.ProjectUserRepo;
-import com.Auth.Repo.VerificationTokenRepo;
+import com.Auth.Principal.AuthPrincipal;
+import com.Auth.Repo.*;
 import com.Auth.Util.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +24,8 @@ public class ProjectUserService {
     private final ProjectRepo projectRepo;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private final VerificationTokenRepo verificationTokenRepo;
+    private final SessionRepo sessionRepo;
+    private final OAuthStorageRepo oAuthStorageRepo;
 
     public SessionDTO signup_email_password(PasswordProjectRegisterRequest request , HttpServletRequest servletRequest,
                                             HttpServletResponse response) {
@@ -93,4 +90,12 @@ public class ProjectUserService {
     }
 
 
+    public void hardDelete(AuthPrincipal principal) {
+        ProjectUser user =projectUserRepo.findByAuthifyerId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
+        List<Session> sessionList = sessionRepo.findBySubjectId(principal.getSubjectId());
+        OAuthStorage oAuthStorage = oAuthStorageRepo.findBySubjectId(principal.getSubjectId());
+        oAuthStorageRepo.delete(oAuthStorage);
+        sessionRepo.deleteAll(sessionList);
+        projectUserRepo.delete(user);
+    }
 }

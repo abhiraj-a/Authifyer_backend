@@ -13,4 +13,8 @@ public interface SessionRepo extends JpaRepository<Session, UUID> {
     Optional<Session> findByPublicId(String sessionPublicId);
 
     Optional<Session> findByTokenHash(String hash);
+
+    List<Session> findAllBySubjectIdAndRevokedAtIsNull(String subjectId);
+
+    List<Session> findBySubjectId(String subjectId);
 }

@@ -20,10 +20,6 @@ public class RefreshToken {
 
     private String tokenHash;
 
-    private UUID sessionId;
-
-    private UUID projectUserId;
-
     private Instant expiresAt;
 
     private Instant revokedAt;

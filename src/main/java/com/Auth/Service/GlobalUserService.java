@@ -1,8 +1,12 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
 import com.Auth.Entity.GlobalUser;
+import com.Auth.Entity.Project;
 import com.Auth.Entity.Session;
+import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
+import com.Auth.Repo.ProjectRepo;
+import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.RefreshResult;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,10 @@ public class GlobalUserService {
     private final EmailService emailService;
 
     private final TokenService tokenService;
+
+    private final ProjectRepo projectRepo;
+
+    private final SessionRepo sessionRepo;
 
     public SessionDTO signup(RegisterRequest request,HttpServletRequest servletRequest, HttpServletResponse response) {
 
@@ -70,6 +79,10 @@ public class GlobalUserService {
             throw new RuntimeException("User doesnt exist");
         }
 
+        if (!user.isActive()) {
+            throw new RuntimeException("Account disabled.");
+        }
+
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new RuntimeException("Invalid credentials");
         }
@@ -82,5 +95,19 @@ public class GlobalUserService {
                 .expiresAt(Instant.now().plus(Duration.ofDays(30)))
                 .accessTokenClaims(tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken()))
                 .build();
+    }
+
+    public void softdelete(AuthPrincipal principal) {
+        GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
+        user.setActive(false);
+        globalUserRepo.save(user);
+        List<Session> sessions = sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(principal.getSubjectId());
+        Instant now = Instant.now();
+
+        for (Session session : sessions) {
+            session.setRevokedAt(now);
+        }
+
+        sessionRepo.saveAll(sessions);
     }
 }
