@@ -33,6 +33,12 @@ public class Project {
     @Column(nullable = false,unique = true)
     private String publishableKey;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "project_secret_keys",
+            joinColumns = @JoinColumn(name = "project_id")
+    )
+    @Column(name = "secret_key", nullable = false)
     private List<String> secretKeys;
 
     @Column(unique = true)

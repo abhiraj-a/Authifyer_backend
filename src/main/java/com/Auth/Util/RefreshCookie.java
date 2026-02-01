@@ -3,7 +3,6 @@ package com.Auth.Util;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-
 import java.time.Duration;
 
 public class RefreshCookie {
@@ -14,24 +13,22 @@ public class RefreshCookie {
         ResponseCookie cookie = ResponseCookie
                 .from(COOKIE_NAME,refreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .maxAge(Duration.ofDays(30))
                 .sameSite("Lax")
-                .path("/authifyer/session/refresh")
+                .path("/")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
     }
 
-
     public static void clear(HttpServletResponse response){
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Lax")
-                .path("/authifyer/session/refresh")
+                .path("/")
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
-    
 }

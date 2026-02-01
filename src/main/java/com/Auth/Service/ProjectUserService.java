@@ -30,9 +30,9 @@ public class ProjectUserService {
     public SessionDTO signup_email_password(PasswordProjectRegisterRequest request , HttpServletRequest servletRequest,
                                             HttpServletResponse response) {
 
-        Project project = projectRepo.findByPublicProjectId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findByPublicId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
 
-        if(projectUserRepo.existsByPublicProjectIdAndEmail(request.getPublicProjectId(),request.getEmail()))
+        if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail()))
             throw new RuntimeException("Email already Exists");
 
         ProjectUser projectUser = projectUserRepo.save(ProjectUser.builder()
@@ -66,7 +66,8 @@ public class ProjectUserService {
     public SessionDTO login_email_password(PasswordProjectLoginRequestDTO request, HttpServletRequest servletRequest,
                                                                 HttpServletResponse response) {
 
-        ProjectUser user = projectUserRepo.findByEmailAndPublicProjectId(request.getEmail(),request.getPublicProjectId())
+        Project project = projectRepo.findByPublicId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByEmailAndProject(request.getEmail(),project)
                 .orElseThrow(RuntimeException::new);
         if(user.getPassword()==null){
             throw new RuntimeException("User exists by oauth account please continue with" + user.getProvider());

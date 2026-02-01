@@ -57,7 +57,7 @@ public class ProjectService {
 
     public Object getProject(AuthPrincipal principal, String publicId) {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-        Project project =projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        Project project =projectRepo.findByPublicId(publicId).orElseThrow(RuntimeException::new);
         if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new RuntimeException("Invalid");
 
         return ProjectDTO.builder()

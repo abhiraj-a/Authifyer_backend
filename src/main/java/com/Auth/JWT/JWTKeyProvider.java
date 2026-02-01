@@ -23,8 +23,6 @@
     @Component
     @Data
     public class JWTKeyProvider {
-
-
         private Algorithm algorithm;
         private String kid;
         private  RSAPublicKey publicKey;

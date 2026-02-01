@@ -1,6 +1,7 @@
 package com.Auth.Util;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -10,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
 
+@Component
 public class TokenHash {
     @Value("${SERVER.SECRET.KEY}")
    private String secret;

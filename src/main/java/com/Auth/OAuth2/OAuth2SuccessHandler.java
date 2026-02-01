@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -22,8 +21,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${}")
-    private final String frontendURL;
+    @Value("${frontend.url}")
+    private  String frontendURL;
     private final SessionService sessionService;
     private final TokenService tokenService;
     private final OAuthProfileMapper mapper;
@@ -37,10 +36,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String state = request.getParameter("state");
         String publicProjectId = (String) request.getSession().getAttribute(state);
-
-        if(state!=null){
-            request.getSession().removeAttribute("state");
+        String clientRedirectUri = (String) request.getSession().getAttribute(state + "_redirect_uri");
+        if (state != null) {
+            request.getSession().removeAttribute(state);
+            request.getSession().removeAttribute(state + "_redirect_uri"); // [NEW] Clean up
         }
+
+        String targetBaseUrl = (clientRedirectUri != null && !clientRedirectUri.isEmpty())
+                ? clientRedirectUri
+                : frontendURL + "/auth/api/callback";
 
         RefreshResult refreshResult =  sessionService.createOAuthSession(request , oAuthProfile,publicProjectId);
 
@@ -48,7 +52,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         RefreshCookie.set(response, refreshResult.getRawRefreshToken());
 
-        String targetUrl = UriComponentsBuilder.fromHttpUrl(frontendURL + "/auth/api/callback")
+        String targetUrl = UriComponentsBuilder.fromHttpUrl(targetBaseUrl)
                 .queryParam("access_token" , jwt.getAccessToken())
                 .queryParam("scope",refreshResult.getSession().getSessionScope())
                 .queryParam("sid",refreshResult.getSession().getPublicId())

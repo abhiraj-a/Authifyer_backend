@@ -9,7 +9,6 @@ import java.util.UUID;
 public interface GlobalUserRepo extends JpaRepository<GlobalUser, UUID> {
     Optional<GlobalUser> findByEmail(@Email String email);
 
-    Optional<GlobalUser> findByProviderAndProviderId(String provider, String providerUserId);
 
     Optional<GlobalUser> findBySubjectId(String subjectId);
 }

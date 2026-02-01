@@ -123,7 +123,7 @@ public class SessionService {
         String subject = null;
 
         if (!isGlobal) {
-            projectRepo.findByPublicProjectId(publicProjectId)
+            projectRepo.findByPublicId(publicProjectId)
                     .orElseThrow(() -> new RuntimeException("Invalid Project ID: " + publicProjectId));
         }
         if(scope.equals("global")){
@@ -180,8 +180,8 @@ public class SessionService {
         }
         else {
 
-            Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
-            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
+            Project project = projectRepo.findByPublicId(publicProjectId).orElseThrow(RuntimeException::new);
+            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublicId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublicId()).orElse(null);
             if(oAuthStorage!=null){
                 subject = oAuthStorage.getSubjectId();
             }
@@ -197,6 +197,7 @@ public class SessionService {
                             .provider(oAuthProfile.getProvider())
                             .providerId(oAuthProfile.getProviderUserId())
                             .subjectId(user.getAuthifyerId())
+                            .publicId(project.getPublicId())
                             .build();
                     oAuthStorageRepo.save(newlink);
                     subject=user.getAuthifyerId();
@@ -223,6 +224,51 @@ public class SessionService {
                     subject = user.getAuthifyerId();
                 }
             }
+
+//            Project project = projectRepo.findByPublicId(publicProjectId)
+//                    .orElseThrow(() -> new RuntimeException("Project not found"));
+//
+//            // 1. Try to find an existing user IN THIS PROJECT by Provider (Google/GitHub)
+//            ProjectUser user = projectUserRepo.findByProjectAndProviderAndProviderId(
+//                    project,
+//                    oAuthProfile.getProvider(),
+//                    oAuthProfile.getProviderUserId()
+//            ).orElse(null);
+//
+//            // 2. If not found by Provider, try by Email (Account Linking)
+//            if (user == null && oAuthProfile.getEmail() != null) {
+//                user = projectUserRepo.findByProjectAndEmail(
+//                        project,
+//                        oAuthProfile.getEmail()
+//                ).orElse(null);
+//
+//                // If found by email but no provider link, you might want to update the user record here
+//                if (user != null) {
+//                    // Optional: Update user to link this provider for future logins
+//                    user.setProvider(oAuthProfile.getProvider());
+//                    user.setProviderId(oAuthProfile.getProviderUserId());
+//                    projectUserRepo.save(user);
+//                }
+//            }
+//
+//            // 3. If still null, CREATE a new user specific to THIS Project
+//            if (user == null) {
+//                user = ProjectUser.builder()
+//                        .authifyerId(IdGenerator.generateAuthifyerId()) // New Unique ID
+//                        .project(project) // Link to Project
+//                        .createdAt(Instant.now())
+//                        .email(oAuthProfile.getEmail())
+//                        .name(oAuthProfile.getName())
+//                        .provider(oAuthProfile.getProvider())
+//                        .providerId(oAuthProfile.getProviderUserId())
+//                        .build();
+//
+//                projectUserRepo.save(user);
+//                // We don't necessarily need OAuthStorage for project users if we query ProjectUser directly
+//            }
+//
+//            subject = user.getAuthifyerId();
+
         }
 
         String rawRefreshToken = tokenService.generateRefreshToken();

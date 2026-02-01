@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class OAuthProfileMapper {
 
-    @Bean
     public  OAuthProfile map(OAuth2AuthenticationToken token){
         String provider =token.getAuthorizedClientRegistrationId();
 

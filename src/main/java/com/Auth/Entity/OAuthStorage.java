@@ -29,4 +29,6 @@ public class OAuthStorage {
     private Instant createdAt;
 
     private String subjectId;
+
+    private String publicId;  //project public id
 }

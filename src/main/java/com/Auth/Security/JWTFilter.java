@@ -34,9 +34,9 @@ public class JWTFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         return path.startsWith("/oauth2/")
                 || path.startsWith("/login/oauth2/")
-                || path.startsWith("/authifyer/register/")
-                || path.startsWith("/authifyer/login/")
-                || path.startsWith("/authifyer/session/refresh/");
+                || path.startsWith("/authifyer/global/register")
+                || path.startsWith("/authifyer/global/login")
+                || path.startsWith("/authifyer/session/refresh");
     }
 
     @Override
@@ -104,14 +104,12 @@ public class JWTFilter extends OncePerRequestFilter {
     private boolean isProject(HttpServletRequest request){
         String path = request.getRequestURI();
 
-        if(path.startsWith("/authifyer/project"))return true;
-        return false;
+        return path.startsWith("/authifyer/project");
     }
 
     private boolean isGlobal(HttpServletRequest request){
         String path = request.getRequestURI();
 
-        if(path.startsWith("/authifyer/global")) return true;
-        return false;
+        return path.startsWith("/authifyer/global");
     }
 }

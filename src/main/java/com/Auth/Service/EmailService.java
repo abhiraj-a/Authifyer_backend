@@ -7,6 +7,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -23,9 +24,10 @@ public class EmailService {
 
     private final VerificationTokenRepo verificationTokenRepo;
     private final JavaMailSender mailSender;
-    private final String senderEmail;
+    @Value("${mail.sender.email}")
+    private  String senderEmail;
     @Async
-    private void sendVerificationEmail(String toEmail, String name, String verificationLink) {
+    public void sendVerificationEmail(String toEmail, String name, String verificationLink) {
      try {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper =  new MimeMessageHelper(mimeMessage);

@@ -34,7 +34,7 @@ public class EmailVerifyController {
             user.setEmailVerified(true);
             globalUserRepo.save(user);
             return ResponseEntity.ok().build();
-        } else if (subjectId.startsWith("proj_")) {
+        } else if (subjectId.startsWith("auth_usr_")) {
             ProjectUser user = projectUserRepo.findByAuthifyerId(subjectId).orElseThrow(RuntimeException::new);
             user.setEmailVerified(true);
             projectUserRepo.save(user);

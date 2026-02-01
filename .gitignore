@@ -33,6 +33,3 @@ build/
 .vscode/
 
 .env
-
-private.pem
-public.pem
