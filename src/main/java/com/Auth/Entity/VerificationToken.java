@@ -20,13 +20,15 @@ public class VerificationToken {
     @GeneratedValue
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    // OPTIONAL for global users
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "project_user_id",
-            nullable = false
+            nullable = true
     )
     private ProjectUser projectUser;
 
+    @Column(nullable = false)
     private String subjectId;
 
     private String verificationToken;

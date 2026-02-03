@@ -13,7 +13,7 @@ import java.util.Base64;
 
 @Component
 public class TokenHash {
-    @Value("${SERVER.SECRET.KEY}")
+    @Value("${SERVER_SECRET_KEY}")
    private String secret;
     private static final String HMAC_ALGO ="HmacSHA256";
     public  String hash(String token){

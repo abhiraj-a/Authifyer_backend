@@ -9,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
-
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +45,7 @@ public class TokenService {
                 .withClaim("scope" , "global")
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plusSeconds(60)))
-                .withIssuer("https://localhost:8080")
+                .withIssuer("http://localhost:8080")
                 .sign(jwtKeyProvider.getAlgorithm());
          return AccessTokenClaims.builder()
                  .accessToken(jwt)
@@ -73,7 +71,7 @@ public class TokenService {
                 .withClaim("scope" , "project")
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plusSeconds(60)))
-                .withIssuer("https://localhost:8080")
+                .withIssuer("http://localhost:8080")
                 .sign(jwtKeyProvider.getAlgorithm());
        return AccessTokenClaims.builder()
                .accessToken(accessToken)

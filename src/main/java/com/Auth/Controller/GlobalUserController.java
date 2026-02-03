@@ -27,6 +27,8 @@ public class GlobalUserController {
         return ResponseEntity.ok(globalUserService.login( request, servletRequest  , response));
     }
 
+
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> delete(@AuthenticationPrincipal AuthPrincipal principal){
       globalUserService.softdelete(principal);

@@ -60,7 +60,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
       String publicSessionId = decodedJWT.getClaim("sid").asString();
 
-      String type =decodedJWT.getClaim("typ").asString();
+      String type =decodedJWT.getClaim("scope").asString();
 
       Session session =sessionService.getPublicIdCache(publicSessionId);
 

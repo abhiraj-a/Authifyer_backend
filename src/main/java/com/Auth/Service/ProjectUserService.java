@@ -1,6 +1,7 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
 import com.Auth.Entity.*;
+import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.*;
 import com.Auth.Util.*;
@@ -52,6 +53,7 @@ public class ProjectUserService {
         project.getProjectUsers().add(projectUser);
         projectRepo.save(project);
 
+        AccessTokenClaims claims =tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
         return SessionDTO.builder()
                 .subjectId(projectUser.getSubjectId())
                 .createdAt(Instant.now())
@@ -59,7 +61,8 @@ public class ProjectUserService {
                 .publicSessionId(session.getPublicId())
                 .publicProjectId(session.getPublicProjectId())
                 .lastAccessedAt(Instant.now())
-                .accessTokenClaims(tokenService.issueAccessToken(refreshResult.getRawRefreshToken()))
+                .accessToken(claims.getAccessToken())
+                .accessTokenExpiresAt(claims.getExpires_at())
                 .build();
     }
 
@@ -79,6 +82,8 @@ public class ProjectUserService {
 
         Session session =refreshResult.getSession();
         RefreshCookie.set(response, refreshResult.getRawRefreshToken());
+        AccessTokenClaims claims =tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
+
         return SessionDTO.builder()
                 .subjectId(user.getSubjectId())
                 .createdAt(Instant.now())
@@ -86,7 +91,8 @@ public class ProjectUserService {
                 .publicSessionId(session.getPublicId())
                 .publicProjectId(session.getPublicProjectId())
                 .lastAccessedAt(Instant.now())
-                .accessTokenClaims(tokenService.issueAccessToken(refreshResult.getRawRefreshToken()))
+                .accessToken(claims.getAccessToken())
+                .accessTokenExpiresAt(claims.getExpires_at())
                 .build();
     }
 

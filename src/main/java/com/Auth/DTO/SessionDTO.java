@@ -1,11 +1,16 @@
 package com.Auth.DTO;
 
-import com.Auth.JWT.AccessTokenClaims;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SessionDTO {
     private String subjectId;
     private String publicSessionId;
@@ -13,5 +18,6 @@ public class SessionDTO {
     private Instant createdAt;
     private Instant expiresAt;
     private String publicProjectId;
-    private AccessTokenClaims accessTokenClaims;
+    private String accessToken;
+    private Instant accessTokenExpiresAt;
 }

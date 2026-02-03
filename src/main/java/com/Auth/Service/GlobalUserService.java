@@ -3,6 +3,7 @@ import com.Auth.DTO.*;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.Session;
+import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.ProjectRepo;
@@ -61,15 +62,18 @@ public class GlobalUserService {
 
         Session session=refreshResult.getSession();
 
-         return SessionDTO.builder()
+        AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
+
+        return SessionDTO.builder()
                  .publicProjectId(request.getPublicProjectId())
                  .subjectId(session.getSubjectId())
                  .publicSessionId(session.getPublicId())
                  .createdAt(Instant.now())
                  .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                  .lastAccessedAt(Instant.now())
-                 .accessTokenClaims(tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken()))
-                 .build();
+                .accessToken(claims.getAccessToken())
+                .accessTokenExpiresAt(claims.getExpires_at())
+                .build();
     }
 
 
@@ -88,12 +92,14 @@ public class GlobalUserService {
         }
         RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId(), servletRequest,response);
         Session session =refreshResult.getSession();
+        AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
         return SessionDTO.builder()
                 .subjectId(session.getSubjectId())
                 .publicSessionId(session.getPublicId())
                 .createdAt(Instant.now())
                 .expiresAt(Instant.now().plus(Duration.ofDays(30)))
-                .accessTokenClaims(tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken()))
+                .accessToken(claims.getAccessToken())
+                .accessTokenExpiresAt(claims.getExpires_at())
                 .build();
     }
 

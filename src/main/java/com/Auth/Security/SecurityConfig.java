@@ -4,6 +4,8 @@ import com.Auth.OAuth2.CustomAuthorizationRequestResolver;
 import com.Auth.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,37 +22,100 @@ import java.util.List;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Configuration
 public class SecurityConfig {
 
     private  final JWTFilter jwtFilter;
     private final OAuth2SuccessHandler successHandler;
     private final CustomAuthorizationRequestResolver requestResolver;
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-       return httpSecurity.csrf(AbstractHttpConfigurer::disable)
+
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+//
+//       return httpSecurity.csrf(AbstractHttpConfigurer::disable)
+//                .cors(Customizer.withDefaults())
+//                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(auth->auth
+//                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                        .requestMatchers("/authifyer/jwt/refresh-jwt").permitAll()
+//                        .requestMatchers(
+//                                "/authifyer/global/signup",
+//                                "/authifyer/global/login",
+//                                "/authifyer/project/register/**",
+//                                "/authifyer/project/login/**",
+//                                "/authifyer/session/refresh",
+//                                "/authifyer/jwt/**",
+//                                "/authifyer/.well-known/jwks.json",
+//                                "/api/auth/verify-email/**",
+//                                "/oauth2/**",
+//                                "/login/**"
+//                        ).permitAll().anyRequest().authenticated())
+//               .oauth2Login(oauth2->
+//                       oauth2.authorizationEndpoint(o->
+//                                       o.authorizationRequestResolver(requestResolver))
+//                               .successHandler(successHandler)
+//                               .failureUrl("/authifyer/login/oauth/failure"))
+//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+//                .build();
+//    }
+
+    @Bean
+    @Order(0)
+    public SecurityFilterChain preflightChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(String.valueOf(HttpMethod.OPTIONS), "/**")
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth->auth
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ THIS
-                        .requestMatchers(
-                                "/authifyer/global/signup",
-                                "/authifyer/global/login",
-                                "/authifyer/project/register/**",
-                                "/authifyer/project/login/**",
-                                "/authifyer/session/refresh",
-                                "/authifyer/jwt/**",
-                                "/authifyer/.well-known/jwks.json",
-                                "/api/auth/verify-email/**",
-                                "/oauth2/**",
-                                "/login/**"
-                        ).permitAll().anyRequest().authenticated())
-               .oauth2Login(oauth2->
-                       oauth2.authorizationEndpoint(o->
-                                       o.authorizationRequestResolver(requestResolver))
-                               .successHandler(successHandler)
-                               .failureUrl("/authifyer/login/oauth/failure"))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .build();
+    }
+
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/authifyer/**", "/api/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/authifyer/jwt/refresh-jwt").permitAll()
+                        .requestMatchers("/authifyer/jwt/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"unauthorized\"}");
+                        })
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauthChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/oauth2/**", "/login/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .sessionManagement(s ->
+                        s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .oauth2Login(oauth2 ->
+                        oauth2
+                                .authorizationEndpoint(o ->
+                                        o.authorizationRequestResolver(requestResolver))
+                                .successHandler(successHandler)
+                                .failureUrl("/authifyer/login/oauth/failure")
+                )
                 .build();
     }
 
