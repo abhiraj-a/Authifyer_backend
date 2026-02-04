@@ -4,6 +4,7 @@ import com.Auth.DTO.ProjectCreationRequest;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectController {
 
     private final ProjectService projectService;
-    @PostMapping("/create")
-    public ResponseEntity<?> createProject(@AuthenticationPrincipal AuthPrincipal principal , ProjectCreationRequest request){
+    @PostMapping(
+            value = "/create",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )    public ResponseEntity<?> createProject(@AuthenticationPrincipal AuthPrincipal principal ,@RequestBody ProjectCreationRequest request){
         return ResponseEntity.ok(projectService.createProject(principal ,request ));
     }
 

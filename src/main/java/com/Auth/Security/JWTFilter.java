@@ -36,7 +36,9 @@ public class JWTFilter extends OncePerRequestFilter {
                 || path.startsWith("/login/oauth2/")
                 || path.startsWith("/authifyer/global/register")
                 || path.startsWith("/authifyer/global/login")
-                || path.startsWith("/authifyer/session/refresh");
+                || path.startsWith("/authifyer/session/refresh")
+                ||path.startsWith("/authifyer/.well-known/jwks.json")
+                ||path.startsWith("/authifyer/jwt/refresh-jwt");
     }
 
     @Override

@@ -30,36 +30,6 @@ public class SecurityConfig {
     private final CustomAuthorizationRequestResolver requestResolver;
 
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-//
-//       return httpSecurity.csrf(AbstractHttpConfigurer::disable)
-//                .cors(Customizer.withDefaults())
-//                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(auth->auth
-//                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                        .requestMatchers("/authifyer/jwt/refresh-jwt").permitAll()
-//                        .requestMatchers(
-//                                "/authifyer/global/signup",
-//                                "/authifyer/global/login",
-//                                "/authifyer/project/register/**",
-//                                "/authifyer/project/login/**",
-//                                "/authifyer/session/refresh",
-//                                "/authifyer/jwt/**",
-//                                "/authifyer/.well-known/jwks.json",
-//                                "/api/auth/verify-email/**",
-//                                "/oauth2/**",
-//                                "/login/**"
-//                        ).permitAll().anyRequest().authenticated())
-//               .oauth2Login(oauth2->
-//                       oauth2.authorizationEndpoint(o->
-//                                       o.authorizationRequestResolver(requestResolver))
-//                               .successHandler(successHandler)
-//                               .failureUrl("/authifyer/login/oauth/failure"))
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
-//    }
-
     @Bean
     @Order(0)
     public SecurityFilterChain preflightChain(HttpSecurity http) throws Exception {

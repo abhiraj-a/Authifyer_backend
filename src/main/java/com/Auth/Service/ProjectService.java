@@ -9,9 +9,11 @@ import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.ProjectRepo;
 import com.Auth.Util.IdGenerator;
+import com.Auth.Util.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,22 +26,25 @@ public class ProjectService {
 
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         String publishableKey = "pk_"+ IdGenerator.generatePublicProjectId();
+        List<OAuthProvider> enableproviders = new ArrayList<>();
+        if(projectCreationRequest.isEnableGithubOAuth()) enableproviders.add(OAuthProvider.GITHUB);
+        if(projectCreationRequest.isEnableGoogleOAuth()) enableproviders.add(OAuthProvider.GOOGLE);
 
         Project p = Project.builder()
                 .createdAt(Instant.now())
                 .owner(owner)
                 .publishableKey(publishableKey)
-                .name(projectCreationRequest.getProjectName())
-                .enabledProviders(projectCreationRequest.getEnableProvider())
+                .name(projectCreationRequest.getName())
+                .enabledProviders(enableproviders)
                 .build();
 
         projectRepo.save(p);
 
         return  ProjectCreationResponse.builder()
-                .projectName(projectCreationRequest.getProjectName())
+                .projectName(projectCreationRequest.getName())
                 .createdAt(Instant.now())
-                .providers(projectCreationRequest.getEnableProvider())
-                .emailPasswordEnabled(projectCreationRequest.isEmailPasswordEnabled())
+                .providers(enableproviders)
+                .emailPasswordEnabled(projectCreationRequest.isEnableEmailPassword())
                 .publishableKey(publishableKey)
                 .build();
     }
