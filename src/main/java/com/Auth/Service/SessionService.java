@@ -56,6 +56,7 @@ public class SessionService {
         String rawRefreshToken = tokenService.generateRefreshToken();
 
         Session session = Session.builder()
+                .publicId(IdGenerator.generatePublicSessionId())
                 .sessionScope("global")
                 .createdAt(Instant.now())
                 .revokedAt(null)

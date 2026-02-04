@@ -1,7 +1,9 @@
 package com.Auth.Service;
+import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Session;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.JWT.JWTKeyProvider;
+import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.TokenHash;
 import com.auth0.jwt.JWT;
@@ -21,6 +23,7 @@ public class TokenService {
     private final SessionRepo sessionRepo;
 
     private final TokenHash TokenHash;
+    private final GlobalUserRepo globalUserRepo;
 
     public String generateRefreshToken() {
         SecureRandom secureRandom =new SecureRandom();
@@ -38,11 +41,14 @@ public class TokenService {
         }
         Instant now = Instant.now();
 
+        GlobalUser user = globalUserRepo.findBySubjectId(session.getSubjectId()).orElseThrow(RuntimeException::new);
        String jwt=  JWT.create()
                 .withSubject(session.getSubjectId())
                 .withKeyId(jwtKeyProvider.getKeyId())
                 .withClaim("sid",session.getPublicId())
                 .withClaim("scope" , "global")
+                .withClaim("email",user.getEmail())
+                .withClaim("name",user.getName())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plusSeconds(60)))
                 .withIssuer("http://localhost:8080")

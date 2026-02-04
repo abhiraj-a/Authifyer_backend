@@ -20,4 +20,16 @@ public class SessionDTO {
     private String publicProjectId;
     private String accessToken;
     private Instant accessTokenExpiresAt;
+    private UserDTO user;
+
+    @Data
+    @Builder
+    public static class UserDTO{
+        private String subjectId;
+        private String email;
+        private String name;
+        private boolean emailVerified;
+        private String provider;
+    }
+
 }

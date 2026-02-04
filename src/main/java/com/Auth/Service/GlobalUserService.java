@@ -100,6 +100,12 @@ public class GlobalUserService {
                 .expiresAt(Instant.now().plus(Duration.ofDays(30)))
                 .accessToken(claims.getAccessToken())
                 .accessTokenExpiresAt(claims.getExpires_at())
+                .user(SessionDTO.UserDTO.builder()
+                        .name(user.getName())
+                        .provider(user.getProvider())
+                        .email(user.getEmail())
+                        .emailVerified(user.isEmailVerified())
+                        .build())
                 .build();
     }
 
