@@ -24,7 +24,7 @@ public class JWTController {
 
         AccessTokenClaims  jwt = tokenService.issueAccessToken(refreshToken);
 
-        return ResponseEntity.ok().body(Map.of("access_token",jwt));
+        return ResponseEntity.ok().body(Map.of("access_token",jwt.getAccessToken()));
     }
 
     @GetMapping("/.well-known/jwks.json")

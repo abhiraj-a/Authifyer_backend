@@ -64,9 +64,14 @@ public class TokenService {
     public AccessTokenClaims issueAccessToken(String refreshToken) {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
 
+
         if (session.getRevokedAt() != null) {
             throw new RuntimeException("Session revoked");
         }
+        if(session.getPublicProjectId()==null){
+            return issueGlobalAccessToken(refreshToken);
+        }
+
         Instant now = Instant.now();
 
        String accessToken = JWT.create()
