@@ -31,7 +31,7 @@ public class ProjectUserService {
     public SessionDTO signup_email_password(PasswordProjectRegisterRequest request , HttpServletRequest servletRequest,
                                             HttpServletResponse response) {
 
-        Project project = projectRepo.findByPublicId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findByPublicProjectId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
 
         if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail()))
             throw new RuntimeException("Email already Exists");
@@ -47,7 +47,7 @@ public class ProjectUserService {
         emailService.createVerificationToken(projectUser);
 
 
-        RefreshResult refreshResult = sessionService.createSession(projectUser.getAuthifyerId(),  project.getPublicId(),servletRequest,response );
+        RefreshResult refreshResult = sessionService.createSession(projectUser.getAuthifyerId(),  project.getPublicProjectId(),servletRequest,response );
 
         Session session =refreshResult.getSession();
         project.getProjectUsers().add(projectUser);
@@ -69,7 +69,7 @@ public class ProjectUserService {
     public SessionDTO login_email_password(PasswordProjectLoginRequestDTO request, HttpServletRequest servletRequest,
                                                                 HttpServletResponse response) {
 
-        Project project = projectRepo.findByPublicId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findByPublicProjectId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
         ProjectUser user = projectUserRepo.findByEmailAndProject(request.getEmail(),project)
                 .orElseThrow(RuntimeException::new);
         if(user.getPassword()==null){

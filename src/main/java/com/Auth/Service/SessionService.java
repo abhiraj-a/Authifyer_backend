@@ -124,7 +124,7 @@ public class SessionService {
         String subject = null;
 
         if (!isGlobal) {
-            projectRepo.findByPublicId(publicProjectId)
+            projectRepo.findByPublicProjectId(publicProjectId)
                     .orElseThrow(() -> new RuntimeException("Invalid Project ID: " + publicProjectId));
         }
         if(scope.equals("global")){
@@ -181,8 +181,8 @@ public class SessionService {
         }
         else {
 
-            Project project = projectRepo.findByPublicId(publicProjectId).orElseThrow(RuntimeException::new);
-            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublicId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublicId()).orElse(null);
+            Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
+            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublicId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublicProjectId()).orElse(null);
             if(oAuthStorage!=null){
                 subject = oAuthStorage.getSubjectId();
             }
@@ -198,7 +198,7 @@ public class SessionService {
                             .provider(oAuthProfile.getProvider())
                             .providerId(oAuthProfile.getProviderUserId())
                             .subjectId(user.getAuthifyerId())
-                            .publicId(project.getPublicId())
+                            .publicId(project.getPublicProjectId())
                             .build();
                     oAuthStorageRepo.save(newlink);
                     subject=user.getAuthifyerId();

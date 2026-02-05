@@ -42,7 +42,7 @@ public class Project {
     private List<String> secretKeys;
 
     @Column(unique = true)
-    private String publicId;
+    private String publicProjectId;
 
     @OneToMany(
             mappedBy = "project",

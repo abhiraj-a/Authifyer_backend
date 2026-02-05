@@ -36,6 +36,7 @@ public class ProjectService {
                 .publishableKey(publishableKey)
                 .name(projectCreationRequest.getName())
                 .enabledProviders(enableproviders)
+                .publicProjectId(IdGenerator.generatePublicProjectId())
                 .build();
 
         projectRepo.save(p);
@@ -54,7 +55,7 @@ public class ProjectService {
         List<Project> projects = projectRepo.findAllByOwner(user);
         return projects.stream()
                 .map(p->ProjectDTO.builder()
-                        .publicProjectId(p.getPublicId())
+                        .publicProjectId(p.getPublicProjectId())
                         .createdAt(p.getCreatedAt())
                         .ownerSubjectId(p.getOwner().getSubjectId())
                         .build()).toList();
@@ -62,11 +63,11 @@ public class ProjectService {
 
     public Object getProject(AuthPrincipal principal, String publicId) {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-        Project project =projectRepo.findByPublicId(publicId).orElseThrow(RuntimeException::new);
+        Project project =projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
         if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new RuntimeException("Invalid");
 
         return ProjectDTO.builder()
-                .publicProjectId(project.getPublicId())
+                .publicProjectId(project.getPublicProjectId())
                 .createdAt(project.getCreatedAt())
                 .projectUsers(project.getProjectUsers().stream().map(p->
                         ProjectDTO.ProjectUserDTO.builder()

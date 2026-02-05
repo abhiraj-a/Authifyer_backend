@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface ProjectRepo extends JpaRepository<Project , UUID>
 {
-    Optional<Project> findByPublicId(String publicProjectId);
+    Optional<Project> findByPublicProjectId(String publicProjectId);
 
     List<Project> findAllByOwner(GlobalUser user);
 

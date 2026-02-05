@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 public class ProjectDTO {
     private String publicProjectId;
+    private String publishableKey;
     private String ownerSubjectId;
     private Instant createdAt;
     private List<ProjectUserDTO> projectUsers;

@@ -31,19 +31,7 @@ public class SecurityConfig {
 
 
     @Bean
-    @Order(0)
-    public SecurityFilterChain preflightChain(HttpSecurity http) throws Exception {
-        return http
-                .securityMatcher(String.valueOf(HttpMethod.OPTIONS), "/**")
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .build();
-    }
-
-
-    @Bean
-    @Order(1)
+    @Order(2)
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/authifyer/**", "/api/**")
@@ -69,7 +57,7 @@ public class SecurityConfig {
 
 
     @Bean
-    @Order(2)
+    @Order(1)
     public SecurityFilterChain oauthChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/oauth2/**", "/login/**")
