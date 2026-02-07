@@ -70,6 +70,7 @@ public class ProjectService {
         return ProjectDTO.builder()
                 .publicProjectId(project.getPublicProjectId())
                 .createdAt(project.getCreatedAt())
+                .publishableKey(project.getPublishableKey())
                 .projectUsers(project.getProjectUsers().stream().map(p->
                         ProjectDTO.ProjectUserDTO.builder()
                                 .email(p.getEmail())
@@ -77,5 +78,6 @@ public class ProjectService {
                                 .name(p.getName())
                                 .build()
                         ).toList());
+
     }
 }
