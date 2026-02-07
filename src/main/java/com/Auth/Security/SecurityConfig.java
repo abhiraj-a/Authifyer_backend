@@ -31,7 +31,7 @@ public class SecurityConfig {
 
 
     @Bean
-    @Order(2)
+    @Order(3)
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/authifyer/**", "/api/**")
@@ -52,6 +52,23 @@ public class SecurityConfig {
                         })
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(
+                        "/authifyer/global/signup",
+                        "/authifyer/global/login",
+                        "/authifyer/jwt/refresh-jwt",
+                        "/api/auth/verify-email"
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .build();
     }
 

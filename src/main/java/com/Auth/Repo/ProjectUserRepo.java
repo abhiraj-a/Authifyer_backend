@@ -18,8 +18,4 @@ public interface ProjectUserRepo extends JpaRepository<ProjectUser, UUID> {
     Optional<ProjectUser> findByAuthifyerId(String subjectId);
 
     boolean existsByProjectAndEmail(Project project, String email);
-
-    Optional<ProjectUser> findByProjectAndEmail(Project project, String email);
-
-    Optional<ProjectUser> findByProjectAndProviderAndProviderId(Project project, String provider, String providerUserId);
 }

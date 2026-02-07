@@ -34,25 +34,30 @@ public class JWTFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         return path.startsWith("/oauth2/")
                 || path.startsWith("/login/oauth2/")
-                || path.startsWith("/authifyer/global/register")
+                || path.startsWith("/authifyer/global/signup")
                 || path.startsWith("/authifyer/global/login")
                 || path.startsWith("/authifyer/session/refresh")
                 ||path.startsWith("/authifyer/.well-known/jwks.json")
-                ||path.startsWith("/authifyer/jwt/refresh-jwt");
+                ||path.startsWith("/authifyer/jwt/refresh-jwt")
+                ;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(isPublic(request)){
-            filterChain.doFilter(request,response);
-            return;
-        }
+//        if(isPublic(request)){
+//            filterChain.doFilter(request,response);
+//            return;
+//        }
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
         String token = header.substring(7);
+        if (token.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         JWTVerifier verifier = JWT.require(keyProvider.getAlgorithm())
                 .withIssuer("http://localhost:8080")
                 .build();
@@ -64,21 +69,21 @@ public class JWTFilter extends OncePerRequestFilter {
 
       String type =decodedJWT.getClaim("scope").asString();
 
-      Session session =sessionService.getPublicIdCache(publicSessionId);
-
-      if(session.getRevokedAt()!=null){
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          return;
-      }
-      if(isGlobal(request)&& !type.equals(SessionScope.GLOBAL.toString().toLowerCase())){
-          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-          return;
-      }
-
-        if(isProject(request)&& !type.equals(SessionScope.PROJECT.toString().toLowerCase())){
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
+//      Session session =sessionService.getPublicIdCache(publicSessionId);
+//
+//      if(session.getRevokedAt()!=null){
+//          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//          return;
+//      }
+//      if(isGlobal(request)&& !type.equals(SessionScope.GLOBAL.toString().toLowerCase())){
+//          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//          return;
+//      }
+//
+//        if(isProject(request)&& !type.equals(SessionScope.PROJECT.toString().toLowerCase())){
+//            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//            return;
+//        }
         AuthPrincipal principal = AuthPrincipal.builder()
                 .subjectId(authId)
                 .build();

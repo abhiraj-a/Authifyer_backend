@@ -12,11 +12,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -55,6 +55,7 @@ public class EmailService {
                 "</div>";
     }
 
+    @Transactional
     public   <T extends VerifyUser> void createVerificationToken(T user){
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = VerificationToken.builder()
