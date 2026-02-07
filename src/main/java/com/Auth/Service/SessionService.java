@@ -209,6 +209,7 @@ public class SessionService {
                             .email(oAuthProfile.getEmail())
                             .provider(oAuthProfile.getProvider())
                             .providerId(oAuthProfile.getProviderUserId())
+                            .project(project)
                             .build();
 
                     OAuthStorage oAuthStorage1 = OAuthStorage.builder()
