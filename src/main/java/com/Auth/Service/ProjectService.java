@@ -47,6 +47,7 @@ public class ProjectService {
                 .providers(enableproviders)
                 .emailPasswordEnabled(projectCreationRequest.isEnableEmailPassword())
                 .publishableKey(publishableKey)
+                .publicProjectId(p.getPublicProjectId())
                 .build();
     }
 

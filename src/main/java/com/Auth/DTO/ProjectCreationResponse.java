@@ -16,4 +16,5 @@ public class ProjectCreationResponse {
     private boolean emailPasswordEnabled;
     private Instant createdAt;
     private String publishableKey;
+    private String publicProjectId;
 }
