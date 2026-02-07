@@ -11,10 +11,14 @@ import java.util.List;
 @Data
 @Getter
 public class ProjectDTO {
+    private String name;
     private String publicProjectId;
     private String publishableKey;
     private String ownerSubjectId;
     private Instant createdAt;
+    private boolean googleOauthEnabled;
+    private boolean githubOauthEnabled;
+    private boolean emailPassEnabled;
     private List<ProjectUserDTO> projectUsers;
 
     @Data

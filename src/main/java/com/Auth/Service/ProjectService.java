@@ -37,6 +37,7 @@ public class ProjectService {
                 .name(projectCreationRequest.getName())
                 .enabledProviders(enableproviders)
                 .publicProjectId(IdGenerator.generatePublicProjectId())
+                .emailPassEnabled(projectCreationRequest.isEnableEmailPassword())
                 .build();
 
         projectRepo.save(p);
@@ -48,6 +49,7 @@ public class ProjectService {
                 .emailPasswordEnabled(projectCreationRequest.isEnableEmailPassword())
                 .publishableKey(publishableKey)
                 .publicProjectId(p.getPublicProjectId())
+                .emailPasswordEnabled(p.isEmailPassEnabled())
                 .build();
     }
 
@@ -59,6 +61,10 @@ public class ProjectService {
                         .publicProjectId(p.getPublicProjectId())
                         .createdAt(p.getCreatedAt())
                         .ownerSubjectId(p.getOwner().getSubjectId())
+                        .githubOauthEnabled(p.getEnabledProviders().contains(OAuthProvider.GITHUB))
+                        .googleOauthEnabled(p.getEnabledProviders().contains(OAuthProvider.GOOGLE))
+                        .name(p.getName())
+                        .emailPassEnabled(p.isEmailPassEnabled())
                         .build()).toList();
     }
 
@@ -71,6 +77,10 @@ public class ProjectService {
                 .publicProjectId(project.getPublicProjectId())
                 .createdAt(project.getCreatedAt())
                 .publishableKey(project.getPublishableKey())
+                .githubOauthEnabled(project.getEnabledProviders().contains(OAuthProvider.GITHUB))
+                .googleOauthEnabled(project.getEnabledProviders().contains(OAuthProvider.GOOGLE))
+                .name(project.getName())
+                .emailPassEnabled(project.isEmailPassEnabled())
                 .projectUsers(project.getProjectUsers().stream().map(p->
                         ProjectDTO.ProjectUserDTO.builder()
                                 .email(p.getEmail())

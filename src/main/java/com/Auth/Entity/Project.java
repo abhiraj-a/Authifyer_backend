@@ -52,4 +52,6 @@ public class Project {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private List<OAuthProvider> enabledProviders;
+
+    private boolean emailPassEnabled;
 }
