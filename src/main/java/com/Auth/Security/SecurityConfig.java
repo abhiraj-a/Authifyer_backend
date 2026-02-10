@@ -29,7 +29,6 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler successHandler;
     private final CustomAuthorizationRequestResolver requestResolver;
 
-
     @Bean
     @Order(3)
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
@@ -40,7 +39,6 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/authifyer/jwt/refresh-jwt").permitAll()
                         .requestMatchers("/authifyer/jwt/**").permitAll()
                         .anyRequest().authenticated()
                 )

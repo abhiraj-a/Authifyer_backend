@@ -17,18 +17,13 @@ import java.time.Instant;
 public class SessionService {
 
     private final SessionRepo sessionRepo;
-
     private final TokenService tokenService;
-
     private final GlobalUserRepo globalUserRepo;
-
     private final ProjectUserRepo projectUserRepo;
-
     private final ProjectRepo projectRepo;
-
     private final OAuthStorageRepo oAuthStorageRepo;
-
     private final TokenHash TokenHash;
+
     public RefreshResult createSession(String authifyerId, String projectId,  HttpServletRequest servletRequest, HttpServletResponse response) {
 
         String refreshToken = tokenService.generateRefreshToken();
@@ -41,6 +36,7 @@ public class SessionService {
                 .createdAt(Instant.now())
                 .createdAt(Instant.now())
                 .tokenHash(TokenHash.hash(refreshToken))
+                .publicId(IdGenerator.generatePublicSessionId())
                 .build();
 
         sessionRepo.save(session);
@@ -101,6 +97,7 @@ public class SessionService {
                 .createdAt(Instant.now())
                 .subjectId(oldSession.getSubjectId())
                 .tokenHash(TokenHash.hash(newRefreshToken))
+                .publicId(IdGenerator.generatePublicSessionId())
                 .build();
         oldSession.setRevokedAt(Instant.now());
         sessionRepo.save(oldSession);
@@ -227,50 +224,6 @@ public class SessionService {
                 }
             }
 
-//            Project project = projectRepo.findByPublicId(publicProjectId)
-//                    .orElseThrow(() -> new RuntimeException("Project not found"));
-//
-//            // 1. Try to find an existing user IN THIS PROJECT by Provider (Google/GitHub)
-//            ProjectUser user = projectUserRepo.findByProjectAndProviderAndProviderId(
-//                    project,
-//                    oAuthProfile.getProvider(),
-//                    oAuthProfile.getProviderUserId()
-//            ).orElse(null);
-//
-//            // 2. If not found by Provider, try by Email (Account Linking)
-//            if (user == null && oAuthProfile.getEmail() != null) {
-//                user = projectUserRepo.findByProjectAndEmail(
-//                        project,
-//                        oAuthProfile.getEmail()
-//                ).orElse(null);
-//
-//                // If found by email but no provider link, you might want to update the user record here
-//                if (user != null) {
-//                    // Optional: Update user to link this provider for future logins
-//                    user.setProvider(oAuthProfile.getProvider());
-//                    user.setProviderId(oAuthProfile.getProviderUserId());
-//                    projectUserRepo.save(user);
-//                }
-//            }
-//
-//            // 3. If still null, CREATE a new user specific to THIS Project
-//            if (user == null) {
-//                user = ProjectUser.builder()
-//                        .authifyerId(IdGenerator.generateAuthifyerId()) // New Unique ID
-//                        .project(project) // Link to Project
-//                        .createdAt(Instant.now())
-//                        .email(oAuthProfile.getEmail())
-//                        .name(oAuthProfile.getName())
-//                        .provider(oAuthProfile.getProvider())
-//                        .providerId(oAuthProfile.getProviderUserId())
-//                        .build();
-//
-//                projectUserRepo.save(user);
-//                // We don't necessarily need OAuthStorage for project users if we query ProjectUser directly
-//            }
-//
-//            subject = user.getAuthifyerId();
-
         }
 
         String rawRefreshToken = tokenService.generateRefreshToken();
@@ -287,6 +240,7 @@ public class SessionService {
                 .tokenHash(TokenHash.hash(rawRefreshToken))
                 .userAgent(request.getHeader("User-Agent"))
                 .subjectId(subject)
+                .publicId(IdGenerator.generatePublicSessionId())
                 .build();
 
         sessionRepo.save(session);

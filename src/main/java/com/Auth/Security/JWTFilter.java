@@ -31,23 +31,26 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true;
-        String path = request.getServletPath();
+
+        String path = request.getRequestURI();
+
         return path.startsWith("/oauth2/")
                 || path.startsWith("/login/oauth2/")
-                || path.startsWith("/authifyer/global/signup")
-                || path.startsWith("/authifyer/global/login")
-                || path.startsWith("/authifyer/session/refresh")
-                ||path.startsWith("/authifyer/.well-known/jwks.json")
-                ||path.startsWith("/authifyer/jwt/refresh-jwt")
-                ;
+                || path.equals("/authifyer/global/signup")
+                || path.equals("/authifyer/global/login")
+                || path.equals("/authifyer/jwt/refresh-jwt")
+                || path.equals("/authifyer/session/refresh")
+                || path.equals("/authifyer/.well-known/jwks.json")
+                || path.equals("/api/auth/verify-email");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        if(isPublic(request)){
-//            filterChain.doFilter(request,response);
-//            return;
-//        }
+
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
