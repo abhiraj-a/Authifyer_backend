@@ -78,6 +78,9 @@ public class ProjectUserService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new RuntimeException("Invalid credentials");
         }
+        if(!user.isActive()){
+            throw new RuntimeException("Account Suspended");
+        }
         RefreshResult refreshResult= sessionService.createSession(user.getAuthifyerId() , request.getPublicProjectId() ,servletRequest,response);
 
         Session session =refreshResult.getSession();

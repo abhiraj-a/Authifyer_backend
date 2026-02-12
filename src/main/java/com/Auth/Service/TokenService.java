@@ -1,9 +1,11 @@
 package com.Auth.Service;
 import com.Auth.Entity.GlobalUser;
+import com.Auth.Entity.ProjectUser;
 import com.Auth.Entity.Session;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.JWT.JWTKeyProvider;
 import com.Auth.Repo.GlobalUserRepo;
+import com.Auth.Repo.ProjectUserRepo;
 import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.TokenHash;
 import com.auth0.jwt.JWT;
@@ -24,6 +26,7 @@ public class TokenService {
 
     private final TokenHash TokenHash;
     private final GlobalUserRepo globalUserRepo;
+    private final ProjectUserRepo projectUserRepo;
 
     public String generateRefreshToken() {
         SecureRandom secureRandom =new SecureRandom();
@@ -63,8 +66,10 @@ public class TokenService {
 
     public AccessTokenClaims issueAccessToken(String refreshToken) {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
-
-
+        ProjectUser user = projectUserRepo.findByAuthifyerId(session.getSubjectId()).orElseThrow(RuntimeException::new);
+        if(!user.isActive()){
+            throw new RuntimeException("Account Suspended");
+        }
         if (session.getRevokedAt() != null) {
             throw new RuntimeException("Session revoked");
         }
