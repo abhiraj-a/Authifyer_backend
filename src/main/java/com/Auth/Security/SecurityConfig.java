@@ -92,8 +92,21 @@ public class SecurityConfig {
                 .build();
     }
 
-
     @Bean
+    @Order(4)
+    public SecurityFilterChain serverApi(HttpSecurity http) throws Exception {
+
+       return http.cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->
+                        auth.requestMatchers("/api/v1/**").permitAll().anyRequest().authenticated())
+               .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
+
+
+
+        @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 

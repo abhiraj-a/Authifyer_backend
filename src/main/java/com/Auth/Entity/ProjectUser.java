@@ -36,6 +36,9 @@ public class ProjectUser implements VerifyUser {
 
     private boolean emailVerified;
 
+    @Builder.Default
+    private boolean isActive=true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="project_id")
     private Project project;

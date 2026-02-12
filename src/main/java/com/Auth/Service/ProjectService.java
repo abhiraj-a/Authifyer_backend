@@ -5,9 +5,11 @@ import com.Auth.DTO.ProjectCreationResponse;
 import com.Auth.DTO.ProjectDTO;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
+import com.Auth.Entity.ProjectUser;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.ProjectRepo;
+import com.Auth.Repo.ProjectUserRepo;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.OAuthProvider;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +17,14 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
 public class ProjectService {
     private final ProjectRepo projectRepo;
     private final GlobalUserRepo globalUserRepo;
+    private final ProjectUserRepo projectUserRepo;
 
     public ProjectCreationResponse createProject(AuthPrincipal principal ,ProjectCreationRequest projectCreationRequest) {
 
@@ -89,5 +93,24 @@ public class ProjectService {
                                 .build()
                         ).toList()).build();
 
+    }
+
+    public void toggleUser(AuthPrincipal principal, String publicId, String authifyerId) {
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
+        if(user.isActive()){
+            user.setActive(false);
+        }
+    }
+
+    public void toggleStatusViaKey(String secretKey, Map<String, String> payload) {
+
+        Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(RuntimeException::new);
+        String authifyerId = payload.get("userId");
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
+        if(user.isActive()){
+            user.setActive(false);
+        }
     }
 }
