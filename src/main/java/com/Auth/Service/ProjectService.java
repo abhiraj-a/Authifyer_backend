@@ -6,14 +6,18 @@ import com.Auth.DTO.ProjectDTO;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.ProjectUser;
+import com.Auth.Entity.Session;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.ProjectRepo;
 import com.Auth.Repo.ProjectUserRepo;
+import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +29,7 @@ public class ProjectService {
     private final ProjectRepo projectRepo;
     private final GlobalUserRepo globalUserRepo;
     private final ProjectUserRepo projectUserRepo;
+    private final SessionRepo sessionRepo;
 
     public ProjectCreationResponse createProject(AuthPrincipal principal ,ProjectCreationRequest projectCreationRequest) {
 
@@ -104,6 +109,7 @@ public class ProjectService {
         }
     }
 
+    @Transactional
     public void toggleStatusViaKey(String secretKey, Map<String, String> payload) {
 
         Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(RuntimeException::new);
@@ -112,5 +118,14 @@ public class ProjectService {
         if(user.isActive()){
             user.setActive(false);
         }
+    }
+
+    @Transactional
+    public void deleteUser(AuthPrincipal principal, String publicId, String authifyerId) {
+        Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
+        List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
+        sessionRepo.deleteAll(sessions);
+        projectUserRepo.delete(user);
     }
 }
