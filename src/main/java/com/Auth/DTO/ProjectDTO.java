@@ -1,8 +1,6 @@
 package com.Auth.DTO;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,6 +21,8 @@ public class ProjectDTO {
 
     @Data
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ProjectUserDTO{
         private String name;
         private String email;

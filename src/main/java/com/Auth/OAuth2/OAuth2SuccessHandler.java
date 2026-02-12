@@ -47,8 +47,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 : frontendURL + "/auth/api/callback";
 
         RefreshResult refreshResult =  sessionService.createOAuthSession(request , oAuthProfile,publicProjectId);
-
-        AccessTokenClaims jwt = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
+        AccessTokenClaims jwt;
+        if(publicProjectId==null||publicProjectId.isBlank()){
+            jwt = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
+        }else {
+             jwt = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
+        }
 
         RefreshCookie.set(response, refreshResult.getRawRefreshToken());
 

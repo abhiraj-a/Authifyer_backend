@@ -36,8 +36,6 @@ public class GlobalUserService {
 
     private final TokenService tokenService;
 
-    private final ProjectRepo projectRepo;
-
     private final SessionRepo sessionRepo;
 
     @Transactional
@@ -57,7 +55,7 @@ public class GlobalUserService {
                 .build();
         globalUserRepo.save(user);
 
-        emailService.createVerificationToken(user);
+//        emailService.createVerificationToken(user);
 
         RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId()
                                    ,servletRequest,response);

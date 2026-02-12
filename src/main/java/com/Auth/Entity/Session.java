@@ -23,8 +23,6 @@ public class Session {
 
     private String publicId;
 
-    private UUID projectId;
-
     private String publicProjectId;
 
     private String IpAddress;

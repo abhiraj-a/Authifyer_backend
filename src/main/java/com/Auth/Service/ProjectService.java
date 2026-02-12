@@ -25,7 +25,7 @@ public class ProjectService {
     public ProjectCreationResponse createProject(AuthPrincipal principal ,ProjectCreationRequest projectCreationRequest) {
 
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-        String publishableKey = "pk_"+ IdGenerator.generatePublicProjectId();
+        String publishableKey =  IdGenerator.generatePublishableKey();
         List<OAuthProvider> enableproviders = new ArrayList<>();
         if(projectCreationRequest.isEnableGithubOAuth()) enableproviders.add(OAuthProvider.GITHUB);
         if(projectCreationRequest.isEnableGoogleOAuth()) enableproviders.add(OAuthProvider.GOOGLE);
@@ -68,7 +68,7 @@ public class ProjectService {
                         .build()).toList();
     }
 
-    public Object getProject(AuthPrincipal principal, String publicId) {
+    public ProjectDTO getProject(AuthPrincipal principal, String publicId) {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project =projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
         if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new RuntimeException("Invalid");
@@ -87,7 +87,7 @@ public class ProjectService {
                                 .signupAt(p.getCreatedAt())
                                 .name(p.getName())
                                 .build()
-                        ).toList());
+                        ).toList()).build();
 
     }
 }
