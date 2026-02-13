@@ -66,6 +66,11 @@ public class TokenService {
 
     public AccessTokenClaims issueAccessToken(String refreshToken) {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
+
+        String subjectId = session.getSubjectId();
+        if(subjectId.startsWith("glob_usr")){
+            return issueGlobalAccessToken(refreshToken);
+        }
         ProjectUser user = projectUserRepo.findByAuthifyerId(session.getSubjectId()).orElseThrow(RuntimeException::new);
         if(!user.isActive()){
             throw new RuntimeException("Account Suspended");
