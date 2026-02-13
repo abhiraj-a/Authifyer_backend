@@ -10,6 +10,7 @@ import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.TokenHash;
 import com.auth0.jwt.JWT;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -64,6 +65,7 @@ public class TokenService {
 
     }
 
+//    @Cacheable
     public AccessTokenClaims issueAccessToken(String refreshToken) {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
 

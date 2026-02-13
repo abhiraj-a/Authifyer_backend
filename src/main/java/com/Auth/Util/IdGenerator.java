@@ -45,4 +45,12 @@ public class IdGenerator {
         }
         return sb.toString();
     }
+
+    public static  String generateSecretKey(){
+        StringBuilder sb =new StringBuilder();
+        for (int i = 0; i < 30; i++) {
+            sb.append(ALPHABET.charAt(secureRandom.nextInt(ALPHABET.length())));
+        }
+        return sb.toString();
+    }
 }

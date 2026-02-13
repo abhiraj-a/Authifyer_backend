@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +48,9 @@ public class ProjectService {
                 .enabledProviders(enableproviders)
                 .publicProjectId(IdGenerator.generatePublicProjectId())
                 .emailPassEnabled(projectCreationRequest.isEnableEmailPassword())
+                .secretKeys(Collections.singletonList(IdGenerator.generateSecretKey()))
                 .build();
-
-        projectRepo.save(p);
+         projectRepo.save(p);
 
         return  ProjectCreationResponse.builder()
                 .projectName(projectCreationRequest.getName())
@@ -59,6 +60,7 @@ public class ProjectService {
                 .publishableKey(publishableKey)
                 .publicProjectId(p.getPublicProjectId())
                 .emailPasswordEnabled(p.isEmailPassEnabled())
+                .secretKeys(p.getSecretKeys())
                 .build();
     }
 
@@ -129,5 +131,14 @@ public class ProjectService {
         List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
         sessionRepo.deleteAll(sessions);
         projectUserRepo.delete(user);
+    }
+
+    @Transactional
+    public String generate_key(AuthPrincipal principal, String publicProjectId) {
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
+        String newSecretKey = IdGenerator.generateSecretKey();
+        project.getSecretKeys().add(newSecretKey);
+        return newSecretKey;
     }
 }

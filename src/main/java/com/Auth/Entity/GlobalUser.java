@@ -44,5 +44,4 @@ public class GlobalUser implements VerifyUser {
 
     @Builder.Default
     private boolean isActive=true;
-
 }

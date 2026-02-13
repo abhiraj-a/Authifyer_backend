@@ -55,7 +55,7 @@ public class GlobalUserService {
                 .build();
         globalUserRepo.save(user);
 
-//        emailService.createVerificationToken(user);
+        emailService.createVerificationToken(user);
 
         RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId()
                                    ,servletRequest,response);
@@ -77,6 +77,7 @@ public class GlobalUserService {
     }
 
 
+    @Transactional
     public SessionDTO login(LoginRequest request, HttpServletRequest servletRequest , HttpServletResponse response) {
         GlobalUser user = globalUserRepo.findByEmail(request.getEmail()).orElse(null);
         if(user==null){
@@ -109,6 +110,7 @@ public class GlobalUserService {
                 .build();
     }
 
+    @Transactional
     public void softdelete(AuthPrincipal principal) {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         user.setActive(false);
@@ -119,7 +121,6 @@ public class GlobalUserService {
         for (Session session : sessions) {
             session.setRevokedAt(now);
         }
-
         sessionRepo.saveAll(sessions);
     }
 }

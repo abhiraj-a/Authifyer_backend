@@ -17,4 +17,5 @@ public class ProjectCreationResponse {
     private Instant createdAt;
     private String publishableKey;
     private String publicProjectId;
+    private List<String> secretKeys;
 }

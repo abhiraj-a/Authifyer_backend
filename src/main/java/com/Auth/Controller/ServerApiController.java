@@ -30,6 +30,7 @@ public class ServerApiController {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
         return ResponseEntity.ok().build();
-
     }
+
+
 }
