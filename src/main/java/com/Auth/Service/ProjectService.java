@@ -95,6 +95,8 @@ public class ProjectService {
                                 .email(p.getEmail())
                                 .signupAt(p.getCreatedAt())
                                 .name(p.getName())
+                                .authifyerId(p.getAuthifyerId())
+                                .isActive(p.isActive())
                                 .build()
                         ).toList()).build();
 

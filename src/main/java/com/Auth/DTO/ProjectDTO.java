@@ -27,5 +27,7 @@ public class ProjectDTO {
         private String name;
         private String email;
         private Instant signupAt;
+        private String authifyerId;
+        private boolean isActive;
     }
 }
