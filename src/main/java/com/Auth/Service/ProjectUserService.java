@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -28,6 +30,7 @@ public class ProjectUserService {
     private final SessionRepo sessionRepo;
     private final OAuthStorageRepo oAuthStorageRepo;
 
+    @Transactional
     public SessionDTO signup_email_password(PasswordProjectRegisterRequest request , HttpServletRequest servletRequest,
                                             HttpServletResponse response) {
 
@@ -66,6 +69,7 @@ public class ProjectUserService {
                 .build();
     }
 
+    @Transactional
     public SessionDTO login_email_password(PasswordProjectLoginRequestDTO request, HttpServletRequest servletRequest,
                                                                 HttpServletResponse response) {
 
@@ -100,6 +104,7 @@ public class ProjectUserService {
     }
 
 
+    @Transactional
     public void hardDelete(AuthPrincipal principal,HttpServletResponse response) {
         ProjectUser user =projectUserRepo.findByAuthifyerId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         List<Session> sessionList = sessionRepo.findBySubjectId(principal.getSubjectId());

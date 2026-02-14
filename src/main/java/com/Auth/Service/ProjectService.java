@@ -32,6 +32,7 @@ public class ProjectService {
     private final ProjectUserRepo projectUserRepo;
     private final SessionRepo sessionRepo;
 
+    @Transactional
     public ProjectCreationResponse createProject(AuthPrincipal principal ,ProjectCreationRequest projectCreationRequest) {
 
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
@@ -82,6 +83,7 @@ public class ProjectService {
     public ProjectDTO getProject(AuthPrincipal principal, String publicId) {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project =projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+
         if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new RuntimeException("Invalid");
 
         return ProjectDTO.builder()
@@ -107,6 +109,9 @@ public class ProjectService {
     public void toggleUser(AuthPrincipal principal, String publicId, String authifyerId) {
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        if(!project.getOwner().equals(owner)){
+            throw new RuntimeException();
+        }
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
         if(user.isActive()){
             user.setActive(false);
@@ -136,7 +141,11 @@ public class ProjectService {
     @Transactional
     public String generate_key(AuthPrincipal principal, String publicProjectId) {
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
+
         Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
+        if(!project.getOwner().equals(owner)){
+            throw new RuntimeException();
+        }
         String newSecretKey = IdGenerator.generateSecretKey();
         project.getSecretKeys().add(newSecretKey);
         return newSecretKey;

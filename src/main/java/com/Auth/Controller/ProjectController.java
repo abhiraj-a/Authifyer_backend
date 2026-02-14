@@ -52,5 +52,4 @@ public class ProjectController {
     public ResponseEntity<?> generate_key(@AuthenticationPrincipal AuthPrincipal principal,@PathVariable String publicProjectId){
        return ResponseEntity.ok(projectService.generate_key(principal,publicProjectId));
     }
-
 }

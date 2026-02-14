@@ -1,5 +1,4 @@
 package com.Auth.Controller;
-
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.ProjectUser;
 import com.Auth.Entity.VerificationToken;

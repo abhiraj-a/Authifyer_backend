@@ -24,6 +24,7 @@ public class SessionService {
     private final OAuthStorageRepo oAuthStorageRepo;
     private final TokenHash TokenHash;
 
+    @Transactional
     public RefreshResult createSession(String authifyerId, String projectId,  HttpServletRequest servletRequest, HttpServletResponse response) {
 
         String refreshToken = tokenService.generateRefreshToken();
@@ -48,6 +49,7 @@ public class SessionService {
                 .build();
     }
 
+    @Transactional
     public RefreshResult createGlobalSession(String subjectId, HttpServletRequest servletRequest, HttpServletResponse response){
         String rawRefreshToken = tokenService.generateRefreshToken();
 
@@ -84,6 +86,7 @@ public class SessionService {
         s.setLastAccessedAt(Instant.now());
     }
 
+    @Transactional
     public RefreshResult rotateSession(String token, String ip, String device, String user) {
         String tokenHash = TokenHash.hash(token);
         Session oldSession = sessionRepo.findByTokenHash(tokenHash).orElseThrow(RuntimeException::new);
