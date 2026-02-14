@@ -72,21 +72,21 @@ public class JWTFilter extends OncePerRequestFilter {
 
       String type =decodedJWT.getClaim("scope").asString();
 
-//      Session session =sessionService.getPublicIdCache(publicSessionId);
-//
-//      if(session.getRevokedAt()!=null){
-//          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//          return;
-//      }
-//      if(isGlobal(request)&& !type.equals(SessionScope.GLOBAL.toString().toLowerCase())){
-//          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//          return;
-//      }
-//
-//        if(isProject(request)&& !type.equals(SessionScope.PROJECT.toString().toLowerCase())){
-//            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//            return;
-//        }
+      Session session =sessionService.getPublicIdCache(publicSessionId);
+
+      if(session.getRevokedAt()!=null){
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+          return;
+      }
+      if(isGlobal(request)&& !type.equals(SessionScope.GLOBAL.toString().toLowerCase())){
+          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+          return;
+      }
+
+        if(isProject(request)&& !type.equals(SessionScope.PROJECT.toString().toLowerCase())){
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         AuthPrincipal principal = AuthPrincipal.builder()
                 .subjectId(authId)
                 .build();

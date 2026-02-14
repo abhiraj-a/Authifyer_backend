@@ -1,6 +1,7 @@
 package com.Auth.Entity;
 
 import com.Auth.Util.VerifyUser;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -26,6 +27,7 @@ public class GlobalUser implements VerifyUser {
 
     private String name;
 
+    @Column(unique = true)
     private String email;
 
     private String password;

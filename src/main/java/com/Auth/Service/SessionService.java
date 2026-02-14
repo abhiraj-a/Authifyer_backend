@@ -98,6 +98,7 @@ public class SessionService {
                 .publicId(IdGenerator.generatePublicSessionId())
                 .revokedAt(null)
                 .createdAt(Instant.now())
+                .deviceName(device)
                 .subjectId(oldSession.getSubjectId())
                 .tokenHash(TokenHash.hash(newRefreshToken))
                 .publicId(IdGenerator.generatePublicSessionId())

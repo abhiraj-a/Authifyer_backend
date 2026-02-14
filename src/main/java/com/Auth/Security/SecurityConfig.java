@@ -1,5 +1,4 @@
 package com.Auth.Security;
-
 import com.Auth.OAuth2.CustomAuthorizationRequestResolver;
 import com.Auth.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.List;
 
 @EnableWebSecurity
@@ -28,6 +26,7 @@ public class SecurityConfig {
     private  final JWTFilter jwtFilter;
     private final OAuth2SuccessHandler successHandler;
     private final CustomAuthorizationRequestResolver requestResolver;
+    private final ApiKeyAuthFilter apiKeyAuthFilter;
 
     @Bean
     @Order(3)
@@ -70,7 +69,6 @@ public class SecurityConfig {
                 .build();
     }
 
-
     @Bean
     @Order(1)
     public SecurityFilterChain oauthChain(HttpSecurity http) throws Exception {
@@ -95,12 +93,12 @@ public class SecurityConfig {
     @Bean
     @Order(4)
     public SecurityFilterChain serverApi(HttpSecurity http) throws Exception {
-
        return http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers("/api/v1/**").permitAll().anyRequest().authenticated())
                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+               .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

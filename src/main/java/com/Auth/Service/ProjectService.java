@@ -131,7 +131,11 @@ public class ProjectService {
 
     @Transactional
     public void deleteUser(AuthPrincipal principal, String publicId, String authifyerId) {
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        if(!project.getOwner().equals(owner)){
+            throw new RuntimeException();
+        }
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
         List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
         sessionRepo.deleteAll(sessions);
@@ -141,7 +145,6 @@ public class ProjectService {
     @Transactional
     public String generate_key(AuthPrincipal principal, String publicProjectId) {
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-
         Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
         if(!project.getOwner().equals(owner)){
             throw new RuntimeException();
