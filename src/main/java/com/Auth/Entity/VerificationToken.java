@@ -20,7 +20,6 @@ public class VerificationToken {
     @GeneratedValue
     private UUID id;
 
-
     @Column(nullable = false)
     private String subjectId;
 
@@ -28,10 +27,4 @@ public class VerificationToken {
 
     private Instant expiresAt;
 }
-//    // OPTIONAL for global users
-//    @OneToOne(fetch = FetchType.LAZY, optional = true)
-//    @JoinColumn(
-//            name = "project_user_id",
-//            nullable = true
-//    )
-//    private ProjectUser projectUser;
+

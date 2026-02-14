@@ -27,11 +27,12 @@ public class EmailService {
     @Value("${mail.sender.email}")
     private  String senderEmail;
     @Async
-    public void sendVerificationEmail(String toEmail, String name, String verificationLink) {
+    public void sendVerificationEmail(String toEmail, String name, String verificationToken) {
      try {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper =  new MimeMessageHelper(mimeMessage);
-         helper.setText(buildHtmlContent(name, verificationLink), true);
+//         helper.setText(buildHtmlContent(name, verificationLink), true);
+         helper.setText(verificationToken);
          helper.setTo(toEmail);
          helper.setSubject("Verify your email for Authifyer");
          helper.setFrom(senderEmail);
@@ -42,18 +43,18 @@ public class EmailService {
         }
     }
 
-    private String buildHtmlContent(String name, String link) {
-        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
-                "  <div style=\"background-color:#ffffff;max-width:580px;margin:0 auto\">\n" +
-                "    <div style=\"padding: 20px; text-align: center;\">\n" +
-                "       <h2>Welcome to Authifyer, " + name + "!</h2>\n" +
-                "       <p>Please click the button below to verify your account:</p>\n" +
-                "       <a href=\"" + link + "\" style=\"background-color:#1a82e2;border-radius:4px;color:#ffffff;display:inline-block;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:200px\">Verify Email</a>\n" +
-                "       <p style=\"font-size: 12px; color: #666; margin-top: 20px;\">Link expires in 24 hours.</p>\n" +
-                "    </div>\n" +
-                "  </div>\n" +
-                "</div>";
-    }
+//    private String buildHtmlContent(String name, String link) {
+//        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
+//                "  <div style=\"background-color:#ffffff;max-width:580px;margin:0 auto\">\n" +
+//                "    <div style=\"padding: 20px; text-align: center;\">\n" +
+//                "       <h2>Welcome to Authifyer, " + name + "!</h2>\n" +
+//                "       <p>Please click the button below to verify your account:</p>\n" +
+//                "       <a href=\"" + link + "\" style=\"background-color:#1a82e2;border-radius:4px;color:#ffffff;display:inline-block;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:200px\">Verify Email</a>\n" +
+//                "       <p style=\"font-size: 12px; color: #666; margin-top: 20px;\">Link expires in 24 hours.</p>\n" +
+//                "    </div>\n" +
+//                "  </div>\n" +
+//                "</div>";
+//    }
 
     @Transactional
     public   <T extends VerifyUser> void createVerificationToken(T user){
@@ -65,8 +66,8 @@ public class EmailService {
                 .build();
 
         verificationTokenRepo.save(verificationToken);
-        String verifyUrl = "/api/auth/verify-email?token="+token;
-        sendVerificationEmail(user.getEmail() , user.getName(),verifyUrl);
+//        String verifyUrl = "/api/auth/verify-email?token="+token;
+        sendVerificationEmail(user.getEmail() , user.getName(),verificationToken.getVerificationToken());
 
     }
 }
