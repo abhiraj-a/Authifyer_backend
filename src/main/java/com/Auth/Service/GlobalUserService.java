@@ -3,6 +3,8 @@ import com.Auth.DTO.*;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.Session;
+import com.Auth.Exception.AccountSuspendedEXception;
+import com.Auth.Exception.InvalidCredentailsException;
 import com.Auth.Exception.UserNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
@@ -86,11 +88,11 @@ public class GlobalUserService {
         }
 
         if (!user.isActive()) {
-            throw new RuntimeException("Account disabled.");
+            throw new AccountSuspendedEXception();
         }
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentailsException();
         }
         RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId(), servletRequest,response);
         Session session =refreshResult.getSession();
@@ -113,7 +115,7 @@ public class GlobalUserService {
 
     @Transactional
     public void softdelete(AuthPrincipal principal) {
-        GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
+        GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
         user.setActive(false);
         globalUserRepo.save(user);
         List<Session> sessions = sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(principal.getSubjectId());

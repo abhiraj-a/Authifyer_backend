@@ -16,6 +16,7 @@ import com.Auth.Repo.ProjectUserRepo;
 import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.OAuthProvider;
+import com.Auth.Util.TokenHash;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class ProjectService {
     private final GlobalUserRepo globalUserRepo;
     private final ProjectUserRepo projectUserRepo;
     private final SessionRepo sessionRepo;
+    private final TokenHash tokenHash;
 
     @Transactional
     public ProjectCreationResponse createProject(AuthPrincipal principal ,ProjectCreationRequest projectCreationRequest) {
@@ -42,6 +44,7 @@ public class ProjectService {
         if(projectCreationRequest.isEnableGithubOAuth()) enableproviders.add(OAuthProvider.GITHUB);
         if(projectCreationRequest.isEnableGoogleOAuth()) enableproviders.add(OAuthProvider.GOOGLE);
 
+        String secretKey = IdGenerator.generateSecretKey();
         Project p = Project.builder()
                 .createdAt(Instant.now())
                 .owner(owner)
@@ -50,7 +53,7 @@ public class ProjectService {
                 .enabledProviders(enableproviders)
                 .publicProjectId(IdGenerator.generatePublicProjectId())
                 .emailPassEnabled(projectCreationRequest.isEnableEmailPassword())
-                .secretKeys(Collections.singletonList(IdGenerator.generateSecretKey()))
+                .secretKeys(Collections.singletonList(tokenHash.hash(secretKey)))
                 .build();
          projectRepo.save(p);
 
@@ -62,7 +65,7 @@ public class ProjectService {
                 .publishableKey(publishableKey)
                 .publicProjectId(p.getPublicProjectId())
                 .emailPasswordEnabled(p.isEmailPassEnabled())
-                .secretKeys(p.getSecretKeys())
+                .secretKeys(List.of(secretKey))
                 .build();
     }
 
@@ -113,7 +116,7 @@ public class ProjectService {
         if(!project.getOwner().equals(owner)){
             throw new OwnerMismatchException();
         }
-        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
         if(user.isActive()){
             user.setActive(false);
         }
@@ -124,7 +127,7 @@ public class ProjectService {
 
         Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(ProjectNotFoundException::new);
         String authifyerId = payload.get("userId");
-        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
         if(user.isActive()){
             user.setActive(false);
         }
@@ -132,12 +135,12 @@ public class ProjectService {
 
     @Transactional
     public void deleteUser(AuthPrincipal principal, String publicId, String authifyerId) {
-        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-        Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
+        Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(ProjectNotFoundException::new);
         if(!project.getOwner().equals(owner)){
             throw new OwnerMismatchException();
         }
-        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
         List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
         sessionRepo.deleteAll(sessions);
         projectUserRepo.delete(user);
@@ -145,13 +148,13 @@ public class ProjectService {
 
     @Transactional
     public String generate_key(AuthPrincipal principal, String publicProjectId) {
-        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-        Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
+        Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(ProjectNotFoundException::new);
         if(!project.getOwner().equals(owner)){
             throw new OwnerMismatchException();
         }
         String newSecretKey = IdGenerator.generateSecretKey();
-        project.getSecretKeys().add(newSecretKey);
+        project.getSecretKeys().add(tokenHash.hash(newSecretKey));
         return newSecretKey;
     }
 }
