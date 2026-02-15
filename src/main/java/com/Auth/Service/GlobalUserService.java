@@ -3,6 +3,7 @@ import com.Auth.DTO.*;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.Session;
+import com.Auth.Exception.UserNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
@@ -44,7 +45,7 @@ public class GlobalUserService {
         GlobalUser user ;
         user = globalUserRepo.findByEmail(request.getEmail()).orElse(null);
         if(user!=null){
-            throw new RuntimeException("User exist");
+            throw new UserNotFoundException();
         }
 
         user= GlobalUser.builder()
@@ -81,7 +82,7 @@ public class GlobalUserService {
     public SessionDTO login(LoginRequest request, HttpServletRequest servletRequest , HttpServletResponse response) {
         GlobalUser user = globalUserRepo.findByEmail(request.getEmail()).orElse(null);
         if(user==null){
-            throw new RuntimeException("User doesnt exist");
+            throw new UserNotFoundException();
         }
 
         if (!user.isActive()) {

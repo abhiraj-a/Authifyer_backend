@@ -2,6 +2,8 @@ package com.Auth.Service;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.ProjectUser;
 import com.Auth.Entity.Session;
+import com.Auth.Exception.AccountSuspendedEXception;
+import com.Auth.Exception.SessionRevokedException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.JWT.JWTKeyProvider;
 import com.Auth.Repo.GlobalUserRepo;
@@ -41,7 +43,7 @@ public class TokenService {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
 
         if (session.getRevokedAt() != null) {
-            throw new RuntimeException("Session revoked");
+            throw new SessionRevokedException();
         }
         Instant now = Instant.now();
 
@@ -75,10 +77,10 @@ public class TokenService {
         }
         ProjectUser user = projectUserRepo.findByAuthifyerId(session.getSubjectId()).orElseThrow(RuntimeException::new);
         if(!user.isActive()){
-            throw new RuntimeException("Account Suspended");
+            throw new AccountSuspendedEXception();
         }
         if (session.getRevokedAt() != null) {
-            throw new RuntimeException("Session revoked");
+            throw new SessionRevokedException();
         }
         if(session.getPublicProjectId()==null){
             return issueGlobalAccessToken(refreshToken);

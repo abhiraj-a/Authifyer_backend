@@ -1,5 +1,4 @@
 package com.Auth.Service;
-
 import com.Auth.DTO.ProjectCreationRequest;
 import com.Auth.DTO.ProjectCreationResponse;
 import com.Auth.DTO.ProjectDTO;
@@ -7,6 +6,9 @@ import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.ProjectUser;
 import com.Auth.Entity.Session;
+import com.Auth.Exception.OwnerMismatchException;
+import com.Auth.Exception.ProjectNotFoundException;
+import com.Auth.Exception.UserNotFoundException;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.ProjectRepo;
@@ -17,7 +19,6 @@ import com.Auth.Util.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,7 +85,7 @@ public class ProjectService {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project =projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
 
-        if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new RuntimeException("Invalid");
+        if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new OwnerMismatchException();
 
         return ProjectDTO.builder()
                 .publicProjectId(project.getPublicProjectId())
@@ -107,10 +108,10 @@ public class ProjectService {
     }
 
     public void toggleUser(AuthPrincipal principal, String publicId, String authifyerId) {
-        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
-        Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
+        Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(ProjectNotFoundException::new);
         if(!project.getOwner().equals(owner)){
-            throw new RuntimeException();
+            throw new OwnerMismatchException();
         }
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
         if(user.isActive()){
@@ -121,7 +122,7 @@ public class ProjectService {
     @Transactional
     public void toggleStatusViaKey(String secretKey, Map<String, String> payload) {
 
-        Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(ProjectNotFoundException::new);
         String authifyerId = payload.get("userId");
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
         if(user.isActive()){
@@ -134,7 +135,7 @@ public class ProjectService {
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
         if(!project.getOwner().equals(owner)){
-            throw new RuntimeException();
+            throw new OwnerMismatchException();
         }
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(RuntimeException::new);
         List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
@@ -147,7 +148,7 @@ public class ProjectService {
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
         if(!project.getOwner().equals(owner)){
-            throw new RuntimeException();
+            throw new OwnerMismatchException();
         }
         String newSecretKey = IdGenerator.generateSecretKey();
         project.getSecretKeys().add(newSecretKey);

@@ -1,5 +1,8 @@
 package com.Auth.Service;
 import com.Auth.Entity.*;
+import com.Auth.Exception.AccountSuspendedEXception;
+import com.Auth.Exception.ProjectNotFoundException;
+import com.Auth.Exception.SessionNotFoundException;
 import com.Auth.OAuth2.OAuthProfile;
 import com.Auth.Repo.*;
 import com.Auth.Util.*;
@@ -82,14 +85,14 @@ public class SessionService {
     }
 
     public void touch(String publicSessionId) {
-        Session s =sessionRepo.findByPublicId(publicSessionId).orElseThrow(RuntimeException::new);
+        Session s =sessionRepo.findByPublicId(publicSessionId).orElseThrow(SessionNotFoundException::new);
         s.setLastAccessedAt(Instant.now());
     }
 
     @Transactional
     public RefreshResult rotateSession(String token, String ip, String device, String user) {
         String tokenHash = TokenHash.hash(token);
-        Session oldSession = sessionRepo.findByTokenHash(tokenHash).orElseThrow(RuntimeException::new);
+        Session oldSession = sessionRepo.findByTokenHash(tokenHash).orElseThrow(SessionNotFoundException::new);
         String newRefreshToken = tokenService.generateRefreshToken();
         Session newSession = Session.builder()
                 .publicProjectId(oldSession.getPublicProjectId())
@@ -114,7 +117,7 @@ public class SessionService {
 
     @Cacheable(value = "sessions",key = "#publicSessionId")
     public Session getPublicIdCache(String publicId){
-        return sessionRepo.findByPublicId(publicId).orElseThrow(RuntimeException::new);
+        return sessionRepo.findByPublicId(publicId).orElseThrow(SessionNotFoundException::new);
     }
 
     @Transactional
@@ -126,7 +129,7 @@ public class SessionService {
 
         if (!isGlobal) {
             projectRepo.findByPublicProjectId(publicProjectId)
-                    .orElseThrow(() -> new RuntimeException("Invalid Project ID: " + publicProjectId));
+                    .orElseThrow(ProjectNotFoundException::new);
         }
         if(scope.equals("global")){
             OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
@@ -144,7 +147,7 @@ public class SessionService {
                 }
                 if(user!=null){
                     if (!user.isActive()) {
-                        throw new RuntimeException("Account Disabled.");
+                        throw new AccountSuspendedEXception();
                     }
                     OAuthStorage newLink = OAuthStorage.builder()
                             .createdAt(Instant.now())
