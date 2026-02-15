@@ -2,6 +2,7 @@ package com.Auth.Security;
 import com.Auth.OAuth2.CustomAuthorizationRequestResolver;
 import com.Auth.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -18,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
+@Slf4j
 @EnableWebSecurity
 @RequiredArgsConstructor
 @Configuration
@@ -31,6 +33,7 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
+        log.warn("API CHAIN ACCESED!!! in security config");
         return http
                 .securityMatcher("/authifyer/**", "/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -96,7 +99,7 @@ public class SecurityConfig {
        return http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->
-                        auth.anyRequest().authenticated())
+                        auth.requestMatchers("/api/v1").permitAll())
                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

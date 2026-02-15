@@ -28,7 +28,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.loadProjects(principal));
     }
 
-    @GetMapping("/project/{publicId}")
+    @GetMapping("/{publicId}")
     public ResponseEntity<?> getProject(@AuthenticationPrincipal AuthPrincipal principal , @PathVariable String publicId){
         return ResponseEntity.ok(projectService.getProject(principal,publicId));
     }

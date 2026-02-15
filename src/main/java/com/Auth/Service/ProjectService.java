@@ -18,6 +18,7 @@ import com.Auth.Util.IdGenerator;
 import com.Auth.Util.OAuthProvider;
 import com.Auth.Util.TokenHash;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ProjectService {
@@ -88,7 +90,10 @@ public class ProjectService {
         GlobalUser user = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(RuntimeException::new);
         Project project =projectRepo.findByPublicProjectId(publicId).orElseThrow(RuntimeException::new);
 
-        if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) throw new OwnerMismatchException();
+        if(!project.getOwner().getSubjectId().equals(user.getSubjectId())) {
+            log.warn("owner mismatch error");
+            throw new OwnerMismatchException();
+        }
 
         return ProjectDTO.builder()
                 .publicProjectId(project.getPublicProjectId())

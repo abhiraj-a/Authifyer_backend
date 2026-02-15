@@ -1,8 +1,10 @@
 package com.Auth.Security;
 
 import com.Auth.Entity.Session;
+import com.Auth.Exception.SessionNotFoundException;
 import com.Auth.JWT.JWTKeyProvider;
 import com.Auth.Principal.AuthPrincipal;
+import com.Auth.Repo.SessionRepo;
 import com.Auth.Service.SessionService;
 import com.Auth.Util.SessionScope;
 import com.auth0.jwt.JWT;
@@ -13,6 +15,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -23,10 +26,12 @@ import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTKeyProvider keyProvider;
     private final SessionService sessionService;
+    private final SessionRepo sessionRepo;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -47,6 +52,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        log.warn("jwt filter reached");
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
@@ -72,18 +78,24 @@ public class JWTFilter extends OncePerRequestFilter {
 
       String type =decodedJWT.getClaim("scope").asString();
 
-      Session session =sessionService.getPublicIdCache(publicSessionId);
+//      Session session =sessionService.getPublicIdCache(publicSessionId);
+        Session session =sessionRepo.findByPublicId(publicSessionId).orElseThrow(SessionNotFoundException::new);
 
       if(session.getRevokedAt()!=null){
+          log.warn("session revoked method");
           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           return;
       }
       if(isGlobal(request)&& !type.equals(SessionScope.GLOBAL.toString().toLowerCase())){
+          log.warn("isglobal method");
+          log.warn(request.getRequestURI());
           response.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
       }
 
         if(isProject(request)&& !type.equals(SessionScope.PROJECT.toString().toLowerCase())){
+            log.warn("is project");
+            log.warn(request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

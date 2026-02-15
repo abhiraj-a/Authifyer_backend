@@ -9,12 +9,14 @@ import com.Auth.Util.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionService {
@@ -77,17 +79,14 @@ public class SessionService {
     }
 
     public void revokeSession(String token) {
-        Session se=sessionRepo.findByTokenHash(TokenHash.hash(token)).orElseThrow(RuntimeException::new);
-        if(se.getRevokedAt().isBefore(Instant.now())) {
-            throw new RuntimeException();
+        Session se=sessionRepo.findByTokenHash(TokenHash.hash(token)).orElseThrow(SessionNotFoundException::new);
+        if(se.getRevokedAt()!=null) {
+            return;
         }
         se.setRevokedAt(Instant.now());
+        sessionRepo.save(se);
     }
 
-    public void touch(String publicSessionId) {
-        Session s =sessionRepo.findByPublicId(publicSessionId).orElseThrow(SessionNotFoundException::new);
-        s.setLastAccessedAt(Instant.now());
-    }
 
     @Transactional
     public RefreshResult rotateSession(String token, String ip, String device, String user) {
@@ -125,6 +124,21 @@ public class SessionService {
         boolean isGlobal = publicProjectId==null||publicProjectId.isBlank();
         String scope = isGlobal?"global":"project";
 
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
+        log.info("created oauth session");
         String subject = null;
 
         if (!isGlobal) {
