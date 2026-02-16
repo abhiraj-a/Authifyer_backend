@@ -1,6 +1,9 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
 import com.Auth.Entity.*;
+import com.Auth.Exception.AccountSuspendedEXception;
+import com.Auth.Exception.AlreadyExistsException;
+import com.Auth.Exception.InvalidCredentailsException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.*;
@@ -36,8 +39,9 @@ public class ProjectUserService {
 
         Project project = projectRepo.findByPublicProjectId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
 
-        if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail()))
-            throw new RuntimeException("Email already Exists");
+        if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail())) {
+            throw new AlreadyExistsException();
+        }
 
         ProjectUser projectUser = projectUserRepo.save(ProjectUser.builder()
                 .email(request.getEmail())
@@ -77,13 +81,13 @@ public class ProjectUserService {
         ProjectUser user = projectUserRepo.findByEmailAndProject(request.getEmail(),project)
                 .orElseThrow(RuntimeException::new);
         if(user.getPassword()==null){
-            throw new RuntimeException("User exists by oauth account please continue with" + user.getProvider());
+            throw new AlreadyExistsException();
         }
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentailsException();
         }
         if(!user.isActive()){
-            throw new RuntimeException("Account Suspended");
+            throw new AccountSuspendedEXception();
         }
         RefreshResult refreshResult= sessionService.createSession(user.getAuthifyerId() , request.getPublicProjectId() ,servletRequest,response);
 

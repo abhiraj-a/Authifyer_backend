@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
-        log.warn("API CHAIN ACCESED!!! in security config");
+
         return http
                 .securityMatcher("/authifyer/**", "/api/**")
                 .csrf(AbstractHttpConfigurer::disable)

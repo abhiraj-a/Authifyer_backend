@@ -32,10 +32,12 @@
         public  void init(){
             List<JWTKey> keys =jwtKeyRepo.findAllByIsActiveTrue();
             if(keys.isEmpty()){
+                log.warn("KEY GENERATED");
                 generateKey();
                 log.info("Generating new key");
             }
             else {
+                log.warn("KEY LOADED");
                 loadKey(keys.getFirst());
             }
         }

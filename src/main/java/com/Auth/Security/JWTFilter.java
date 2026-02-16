@@ -82,7 +82,7 @@ public class JWTFilter extends OncePerRequestFilter {
         Session session =sessionRepo.findByPublicId(publicSessionId).orElseThrow(SessionNotFoundException::new);
 
       if(session.getRevokedAt()!=null){
-          log.warn("session revoked method");
+          log.warn("session revoked ");
           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           return;
       }
