@@ -1,9 +1,6 @@
 package com.Auth.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -11,6 +8,7 @@ import java.time.Instant;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class SessionDTO {
     private String subjectId;
     private String publicSessionId;

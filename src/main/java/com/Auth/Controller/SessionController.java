@@ -48,6 +48,7 @@ public class SessionController {
                                 .publicProjectId(session.getPublicProjectId())
                                 .createdAt(Instant.now())
                                 .lastAccessedAt(Instant.now())
+                                .build()
                 ));
     }
 
@@ -57,5 +58,6 @@ public class SessionController {
         RefreshCookie.clear(response);
         return ResponseEntity.ok().build();
     }
+
 
 }

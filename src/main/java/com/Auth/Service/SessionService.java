@@ -125,24 +125,12 @@ public class SessionService {
         String scope = isGlobal?"global":"project";
 
         log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
-        log.info("created oauth session");
         String subject = null;
 
         if (!isGlobal) {
-            projectRepo.findByPublicProjectId(publicProjectId)
+//            projectRepo.findByPublicProjectId(publicProjectId)
+//                    .orElseThrow(ProjectNotFoundException::new);
+            projectRepo.findByPublishableKey(publicProjectId)
                     .orElseThrow(ProjectNotFoundException::new);
         }
         if(scope.equals("global")){

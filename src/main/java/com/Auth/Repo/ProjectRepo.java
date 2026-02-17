@@ -16,4 +16,6 @@ public interface ProjectRepo extends JpaRepository<Project , UUID>
     List<Project> findAllByOwner(GlobalUser user);
 
     Optional<Project> findBySecretKeys(String secretKey);
+
+    Optional<Project> findByPublishableKey(String publicProjectId);
 }
