@@ -14,4 +14,6 @@ public interface OAuthStorageRepo extends JpaRepository<OAuthStorage , UUID> {
     OAuthStorage findBySubjectId(String subjectId);
 
     Optional<OAuthStorage> findByProviderAndProviderIdAndPublicId(String provider, String providerUserId, String publicId);
+
+    Optional<OAuthStorage> findByProviderAndProviderIdAndPublishableKey(String provider, String providerUserId, String publicProjectId);
 }

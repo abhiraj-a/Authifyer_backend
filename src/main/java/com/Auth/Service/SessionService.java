@@ -120,8 +120,8 @@ public class SessionService {
     }
 
     @Transactional
-    public RefreshResult createOAuthSession(HttpServletRequest request, OAuthProfile oAuthProfile,String publicProjectId) {
-        boolean isGlobal = publicProjectId==null||publicProjectId.isBlank();
+    public RefreshResult createOAuthSession(HttpServletRequest request, OAuthProfile oAuthProfile,String publishableKey) {
+        boolean isGlobal = publishableKey==null||publishableKey.isBlank();
         String scope = isGlobal?"global":"project";
 
         log.info("created oauth session");
@@ -130,7 +130,7 @@ public class SessionService {
         if (!isGlobal) {
 //            projectRepo.findByPublicProjectId(publicProjectId)
 //                    .orElseThrow(ProjectNotFoundException::new);
-            projectRepo.findByPublishableKey(publicProjectId)
+            projectRepo.findByPublishableKey(publishableKey)
                     .orElseThrow(ProjectNotFoundException::new);
         }
         if(scope.equals("global")){
@@ -187,8 +187,10 @@ public class SessionService {
         }
         else {
 
-            Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(RuntimeException::new);
-            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublicId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublicProjectId()).orElse(null);
+            Project project = projectRepo.findByPublishableKey(publishableKey).orElseThrow(RuntimeException::new);
+//            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublicId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublicProjectId()).orElse(null);
+            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublishableKey(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublishableKey()).orElse(null);
+
             if(oAuthStorage!=null){
                 subject = oAuthStorage.getSubjectId();
             }
@@ -244,7 +246,7 @@ public class SessionService {
                 .revokedAt(null)
                 .IpAddress(Extractor.getClientIP(request))
                 .deviceName(Extractor.parseDeviceName(request))
-                .publicProjectId(isGlobal ? null : publicProjectId)
+                .publicProjectId(isGlobal ? null : publishableKey)
                 .lastAccessedAt(Instant.now())
                 .tokenHash(TokenHash.hash(rawRefreshToken))
                 .userAgent(request.getHeader("User-Agent"))

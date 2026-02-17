@@ -31,4 +31,6 @@ public class OAuthStorage {
     private String subjectId;
 
     private String publicId;  //project public id
+
+    private String publishableKey;
 }

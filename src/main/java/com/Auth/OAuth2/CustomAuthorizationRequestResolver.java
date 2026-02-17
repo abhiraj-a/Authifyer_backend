@@ -20,23 +20,23 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
     @Override
     public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
         OAuth2AuthorizationRequest authRequest=defaultResolver.resolve(request);
-        saveProjectIdToSession(request,authRequest);
+        savePublishableKeyToSession(request,authRequest);
         return authRequest;
     }
 
     @Override
     public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
         OAuth2AuthorizationRequest authRequest=defaultResolver.resolve(request,clientRegistrationId);
-        saveProjectIdToSession(request,authRequest);
+        savePublishableKeyToSession(request,authRequest);
         return authRequest;
     }
 
-    private void saveProjectIdToSession(HttpServletRequest request,OAuth2AuthorizationRequest authorizationRequest){
+    private void savePublishableKeyToSession(HttpServletRequest request, OAuth2AuthorizationRequest authorizationRequest){
         if(authorizationRequest!=null) {
-            String projectId = request.getParameter("project_id");
-            if (projectId != null && !projectId.isBlank()) {
+            String publishableKey = request.getParameter("publishable_key");
+            if (publishableKey != null && !publishableKey.isBlank()) {
                 HttpSession session = request.getSession();
-                session.setAttribute(authorizationRequest.getState(),projectId);
+                session.setAttribute(authorizationRequest.getState(),publishableKey);
             }
         }
     }

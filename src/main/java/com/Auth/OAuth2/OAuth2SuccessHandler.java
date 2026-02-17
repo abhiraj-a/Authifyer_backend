@@ -37,20 +37,20 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuthProfile oAuthProfile =mapper.map(oAuth2AuthenticationToken );
 
         String state = request.getParameter("state");
-        String publicProjectId = (String) request.getSession().getAttribute(state);
+        String publishableKey = (String) request.getSession().getAttribute(state);
         String clientRedirectUri = (String) request.getSession().getAttribute(state + "_redirect_uri");
         if (state != null) {
             request.getSession().removeAttribute(state);
-            request.getSession().removeAttribute(state + "_redirect_uri"); // [NEW] Clean up
+            request.getSession().removeAttribute(state + "_redirect_uri");
         }
 
         String targetBaseUrl = (clientRedirectUri != null && !clientRedirectUri.isEmpty())
                 ? clientRedirectUri
                 : frontendURL + "/auth/api/callback";
 
-        RefreshResult refreshResult =  sessionService.createOAuthSession(request , oAuthProfile,publicProjectId);
+        RefreshResult refreshResult =  sessionService.createOAuthSession(request , oAuthProfile,publishableKey);
         AccessTokenClaims jwt;
-        if(publicProjectId==null||publicProjectId.isBlank()){
+        if(publishableKey==null||publishableKey.isBlank()){
             jwt = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
         }else {
              jwt = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
