@@ -196,6 +196,7 @@ public class SessionService {
         else {
 
             Project project = projectRepo.findByPublishableKey(publishableKey).orElseThrow(RuntimeException::new);
+            publicProjectId=project.getPublicProjectId();
 
             OAuthStorage oAuthStorage ;
             if(oAuthProfile.getEmail()!=null&&!oAuthProfile.getEmail().isBlank()){
@@ -248,7 +249,7 @@ public class SessionService {
                     project.getProjectUsers().add(user);
                     projectRepo.save(project);
                     subject = user.getAuthifyerId();
-                    publicProjectId=project.getPublicProjectId();
+
                 }
             }
 
