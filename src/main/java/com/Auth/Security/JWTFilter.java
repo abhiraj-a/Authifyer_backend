@@ -52,7 +52,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        log.warn("jwt filter reached");
+        log.warn("jwt filter initiated");
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
@@ -77,9 +77,9 @@ public class JWTFilter extends OncePerRequestFilter {
       String publicSessionId = decodedJWT.getClaim("sid").asString();
 
       String type =decodedJWT.getClaim("scope").asString();
+       Session session =sessionRepo.findByPublicId(publicSessionId).orElseThrow(SessionNotFoundException::new);
 
-//      Session session =sessionService.getPublicIdCache(publicSessionId);
-        Session session =sessionRepo.findByPublicId(publicSessionId).orElseThrow(SessionNotFoundException::new);
+       log.warn("type : " + type);
 
       if(session.getRevokedAt()!=null){
           log.warn("session revoked ");
@@ -92,13 +92,13 @@ public class JWTFilter extends OncePerRequestFilter {
           response.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
       }
-
         if(isProject(request)&& !type.equals(SessionScope.PROJECT.toString().toLowerCase())){
             log.warn("is project");
             log.warn(request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
+
         AuthPrincipal principal = AuthPrincipal.builder()
                 .subjectId(authId)
                 .build();

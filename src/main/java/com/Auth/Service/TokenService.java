@@ -82,10 +82,6 @@ public class TokenService {
         if (session.getRevokedAt() != null) {
             throw new SessionRevokedException();
         }
-        if(session.getPublicProjectId()==null){
-            return issueGlobalAccessToken(refreshToken);
-        }
-
         Instant now = Instant.now();
 
        String accessToken = JWT.create()
@@ -95,15 +91,13 @@ public class TokenService {
                 .withClaim("pid" , session.getPublicProjectId())
                 .withClaim("scope" , "project")
                 .withIssuedAt(Date.from(now))
-                .withExpiresAt(Date.from(now.plusSeconds(60)))
+                .withExpiresAt(Date.from(now.plusSeconds(300)))
                 .withIssuer("http://localhost:8080")
                 .sign(jwtKeyProvider.getAlgorithm());
        return AccessTokenClaims.builder()
                .accessToken(accessToken)
                .issued_at(Instant.now())
-               .expires_at(Instant.now().plusSeconds(60))
+               .expires_at(Instant.now().plusSeconds(300))
                .build();
     }
-
-
 }

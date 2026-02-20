@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
@@ -32,6 +34,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
+        log.warn("oauth succeshandler ewached");
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
 
         OAuthProfile oAuthProfile =mapper.map(oAuth2AuthenticationToken );
@@ -42,6 +45,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         if (state != null) {
             request.getSession().removeAttribute(state);
             request.getSession().removeAttribute(state + "_redirect_uri");
+        }
+
+        if(clientRedirectUri!=null && !clientRedirectUri.isEmpty()){
+            log.warn(clientRedirectUri);
+        }
+        else {
+            log.warn("client redirect not found");
+            log.warn(clientRedirectUri);
         }
 
         String targetBaseUrl = (clientRedirectUri != null && !clientRedirectUri.isEmpty())

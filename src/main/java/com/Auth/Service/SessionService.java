@@ -3,6 +3,7 @@ import com.Auth.Entity.*;
 import com.Auth.Exception.AccountSuspendedEXception;
 import com.Auth.Exception.ProjectNotFoundException;
 import com.Auth.Exception.SessionNotFoundException;
+import com.Auth.Exception.UserNotFoundException;
 import com.Auth.OAuth2.OAuthProfile;
 import com.Auth.Repo.*;
 import com.Auth.Util.*;
@@ -124,7 +125,7 @@ public class SessionService {
         boolean isGlobal = publishableKey==null||publishableKey.isBlank();
         String scope = isGlobal?"global":"project";
 
-        log.info("created oauth session");
+        log.info("created oauth session  scope : " + scope );
         String subject = null;
 
         if (!isGlobal) {
@@ -134,11 +135,19 @@ public class SessionService {
                     .orElseThrow(ProjectNotFoundException::new);
         }
         if(scope.equals("global")){
-            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
+//            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
+            OAuthStorage oAuthStorage  ;
+            if(oAuthProfile.getEmail()!=null&&!oAuthProfile.getEmail().isBlank()){
+                oAuthStorage =oAuthStorageRepo.findByProviderAndProviderIdAndEmail(oAuthProfile.getProvider(),oAuthProfile.getProviderUserId() , oAuthProfile.getEmail()).orElse(null);
+            }
+            else {
+                oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
+            }
+
             if(oAuthStorage!=null){
-                GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseThrow(RuntimeException::new);
+                GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseThrow(UserNotFoundException::new);
                 if (!user.isActive()) {
-                    throw new RuntimeException("Account Disabled. ");
+                    throw new AccountSuspendedEXception();
                 }
                 subject = oAuthStorage.getSubjectId();
             }
@@ -188,9 +197,14 @@ public class SessionService {
         else {
 
             Project project = projectRepo.findByPublishableKey(publishableKey).orElseThrow(RuntimeException::new);
-//            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublicId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublicProjectId()).orElse(null);
-            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublishableKey(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),project.getPublishableKey()).orElse(null);
 
+            OAuthStorage oAuthStorage ;
+            if(oAuthProfile.getEmail()!=null&&!oAuthProfile.getEmail().isBlank()){
+                oAuthStorage =oAuthStorageRepo.findByProviderAndProviderIdAndEmailAndPublishableKey(oAuthProfile.getProvider(),oAuthProfile.getProviderUserId() , oAuthProfile.getEmail(),publishableKey).orElse(null);
+            }
+            else {
+                oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublishableKey(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),publishableKey).orElse(null);
+            }
             if(oAuthStorage!=null){
                 subject = oAuthStorage.getSubjectId();
             }
@@ -207,6 +221,7 @@ public class SessionService {
                             .providerId(oAuthProfile.getProviderUserId())
                             .subjectId(user.getAuthifyerId())
                             .publicId(project.getPublicProjectId())
+                            .publishableKey(project.getPublishableKey())
                             .build();
                     oAuthStorageRepo.save(newlink);
                     subject=user.getAuthifyerId();
@@ -226,6 +241,7 @@ public class SessionService {
                             .subjectId(user.getAuthifyerId())
                             .email(user.getEmail())
                             .createdAt(Instant.now())
+                            .publishableKey(project.getPublishableKey())
                             .build();
                     projectUserRepo.save(user);
                     oAuthStorageRepo.save(oAuthStorage1);

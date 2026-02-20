@@ -25,6 +25,8 @@ public class Session {
 
     private String publicProjectId;
 
+//    private String publishableKey;
+
     private String IpAddress;
 
     private String userAgent;

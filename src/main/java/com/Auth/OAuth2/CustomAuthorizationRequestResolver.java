@@ -39,5 +39,10 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
                 session.setAttribute(authorizationRequest.getState(),publishableKey);
             }
         }
+        String redirectUri = request.getParameter("redirect_uri");
+        if(redirectUri!=null&&!redirectUri.isBlank()){
+            HttpSession session = request.getSession();
+            session.setAttribute(authorizationRequest.getState() + "_redirect_uri", redirectUri);
+        }
     }
 }
