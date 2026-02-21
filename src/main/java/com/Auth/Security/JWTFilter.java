@@ -112,17 +112,6 @@ public class JWTFilter extends OncePerRequestFilter {
         filterChain.doFilter(request,response);
     }
 
-    private boolean isPublic(HttpServletRequest request){
-        String path = request.getRequestURI();
-        return path.startsWith("/authifyer/jwt") ||
-                path.contains("/register") ||
-                path.contains("/login") ||
-                path.startsWith("/authifyer/session/refresh") ||
-                path.startsWith("/api/auth/verify-email") ||
-                path.startsWith("/oauth2/") ||
-                path.startsWith("/login/oauth2/");
-    }
-
     private boolean isProject(HttpServletRequest request){
         String path = request.getRequestURI();
 

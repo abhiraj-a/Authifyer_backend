@@ -137,13 +137,13 @@ public class SessionService {
 //            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
             OAuthStorage oAuthStorage  ;
             if(oAuthProfile.getEmail()!=null&&!oAuthProfile.getEmail().isBlank()){
-                oAuthStorage =oAuthStorageRepo.findByProviderAndProviderIdAndEmail(oAuthProfile.getProvider(),oAuthProfile.getProviderUserId() , oAuthProfile.getEmail()).orElse(null);
+                oAuthStorage =oAuthStorageRepo.findByProviderAndProviderIdAndEmailAndPublishableKeyIsNull(oAuthProfile.getProvider(),oAuthProfile.getProviderUserId() , oAuthProfile.getEmail()).orElse(null);
             }
             else {
-                oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
+                oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublishableKeyIsNull(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
             }
 
-            if(oAuthStorage!=null){
+            if(oAuthStorage!=null){      //user already present
                 GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseThrow(UserNotFoundException::new);
                 if (!user.isActive()) {
                     throw new AccountSuspendedEXception();
@@ -155,7 +155,7 @@ public class SessionService {
                 if(oAuthProfile.getEmail()!=null){
                     user=globalUserRepo.findByEmail(oAuthProfile.getEmail()).orElse(null);
                 }
-                if(user!=null){
+                if(user!=null){    // User has present with different oauth
                     if (!user.isActive()) {
                         throw new AccountSuspendedEXception();
                     }
@@ -170,7 +170,7 @@ public class SessionService {
                     oAuthStorageRepo.save(newLink);
                     subject = user.getSubjectId();
                 }
-                else {
+                else {   // New User
                     user= GlobalUser.builder()
                             .subjectId(IdGenerator.generateGlobalUserSubjectId())
                             .name(oAuthProfile.getName())

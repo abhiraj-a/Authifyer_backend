@@ -24,8 +24,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final ProjectRepo projectRepo;
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        log.warn("api key  filter accessed!!!");
-
+        log.warn("api key filter accessed");
         return !request.getRequestURI().startsWith("/api/v1");
     }
 

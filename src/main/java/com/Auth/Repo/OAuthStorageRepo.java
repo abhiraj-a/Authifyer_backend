@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public interface OAuthStorageRepo extends JpaRepository<OAuthStorage , UUID> {
 
-    Optional<OAuthStorage> findByProviderAndProviderId(String provider, String providerId);
-
     OAuthStorage findBySubjectId(String subjectId);
 
     Optional<OAuthStorage> findByProviderAndProviderIdAndPublishableKey(String provider, String providerUserId, String publicProjectId);
 
-    Optional<OAuthStorage> findByProviderAndProviderIdAndEmail(String provider, String providerUserId, String email);
-
     Optional<OAuthStorage> findByProviderAndProviderIdAndEmailAndPublishableKey(String provider, String providerUserId, String email, String publishableKey);
+
+    Optional<OAuthStorage>  findByProviderAndProviderIdAndEmailAndPublishableKeyIsNull(String provider, String providerUserId, String email);
+
+    Optional<OAuthStorage> findByProviderAndProviderIdAndPublishableKeyIsNull(String provider, String providerUserId);
 }

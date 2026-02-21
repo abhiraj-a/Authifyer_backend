@@ -34,7 +34,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        log.warn("oauth succeshandler ewached");
+        log.warn("oauth success handler reached");
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
 
         OAuthProfile oAuthProfile =mapper.map(oAuth2AuthenticationToken );
@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         RefreshResult refreshResult =  sessionService.createOAuthSession(request , oAuthProfile,publishableKey);
         AccessTokenClaims jwt;
-        if(publishableKey==null||publishableKey.isBlank()){
+        if(publishableKey==null&&publishableKey.isBlank()){
             jwt = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
         }else {
              jwt = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
