@@ -12,6 +12,7 @@ import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.TokenHash;
 import com.auth0.jwt.JWT;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
@@ -22,6 +23,8 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class TokenService {
+    @Value("${backend.url:http://localhost:8080}")
+    String backendUrl;
 
     private final JWTKeyProvider jwtKeyProvider;
 
@@ -57,7 +60,7 @@ public class TokenService {
                 .withClaim("name",user.getName())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plusSeconds(60)))
-                .withIssuer("http://localhost:8080")
+                .withIssuer(backendUrl)
                 .sign(jwtKeyProvider.getAlgorithm());
          return AccessTokenClaims.builder()
                  .accessToken(jwt)
@@ -95,7 +98,7 @@ public class TokenService {
                 .withClaim("scope" , "project")
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plusSeconds(300)))
-                .withIssuer("http://localhost:8080")
+                .withIssuer(backendUrl)
                 .sign(jwtKeyProvider.getAlgorithm());
        return AccessTokenClaims.builder()
                .accessToken(accessToken)

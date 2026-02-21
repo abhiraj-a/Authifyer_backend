@@ -13,9 +13,9 @@ public class RefreshCookie {
         ResponseCookie cookie = ResponseCookie
                 .from(COOKIE_NAME,refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofDays(30))
-                .sameSite("Lax")
+                .sameSite("None")
                 .path("/")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
@@ -24,8 +24,8 @@ public class RefreshCookie {
     public static void clear(HttpServletResponse response){
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();

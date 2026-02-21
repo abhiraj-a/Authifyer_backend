@@ -3,6 +3,7 @@ import com.Auth.OAuth2.CustomAuthorizationRequestResolver;
 import com.Auth.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -25,6 +26,8 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${frontend.url:http://localhost:3000}")
+    private String frontendUrl;
     private  final JWTFilter jwtFilter;
     private final OAuth2SuccessHandler successHandler;
     private final CustomAuthorizationRequestResolver requestResolver;
@@ -58,12 +61,16 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
+        log.warn("public chain accessed");
         return http
                 .securityMatcher(
                         "/authifyer/global/signup",
                         "/authifyer/global/login",
+                        "/authifyer/project/register/email",
+                        "/authifyer/project/login/email",
                         "/authifyer/jwt/refresh-jwt",
-                        "/api/auth/verify-email"
+                        "/api/auth/verify-email",
+                        "/authifyer/.well-known/jwks.json"
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -111,7 +118,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:3000" ,"http://localhost:5173"));
+        config.setAllowedOrigins(List.of(frontendUrl ,"http://localhost:3000" ,"http://localhost:5173"));
         config.setAllowCredentials(true);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

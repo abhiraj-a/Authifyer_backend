@@ -4,6 +4,7 @@ import com.Auth.Entity.*;
 import com.Auth.Exception.AccountSuspendedEXception;
 import com.Auth.Exception.AlreadyExistsException;
 import com.Auth.Exception.InvalidCredentailsException;
+import com.Auth.Exception.ProjectNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.*;
@@ -11,6 +12,7 @@ import com.Auth.Util.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectUserService {
@@ -37,7 +40,8 @@ public class ProjectUserService {
     public SessionDTO signup_email_password(PasswordProjectRegisterRequest request , HttpServletRequest servletRequest,
                                             HttpServletResponse response) {
 
-        Project project = projectRepo.findByPublicProjectId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
+        log.warn("project signup reached ");
+        Project project = projectRepo.findByPublishableKey(request.getPublicProjectId()).orElseThrow(ProjectNotFoundException::new);
 
         if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail())) {
             throw new AlreadyExistsException();

@@ -8,11 +8,16 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -22,52 +27,83 @@ import java.util.UUID;
 @Slf4j
 public class EmailService {
 
-    private final VerificationTokenRepo verificationTokenRepo;
-    private final JavaMailSender mailSender;
+private final VerificationTokenRepo verificationTokenRepo;
+    private final RestTemplate restTemplate;
+
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
+
     @Value("${mail.sender.email}")
-    private  String senderEmail;
+    private String senderEmail;
+
+    // ================= SEND EMAIL =================
     @Async
-    public void sendVerificationEmail(String toEmail, String name, String verificationToken) {
-     try {
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper =  new MimeMessageHelper(mimeMessage);
-//         helper.setText(buildHtmlContent(name, verificationLink), true);
-         helper.setText(verificationToken);
-         helper.setTo(toEmail);
-         helper.setSubject("Verify your email for Authifyer");
-         helper.setFrom(senderEmail);
-         mailSender.send(mimeMessage);
-         log.info("Verification email sent to {}", toEmail);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
+    public void sendVerificationEmail(
+            String toEmail,
+            String name,
+            String verificationToken
+    ) {
+
+        log.warn("send verification mail method reached");
+
+        String body = """
+        {
+          "sender":{
+            "name":"Authifyer",
+            "email":"%s"
+          },
+          "to":[{"email":"%s"}],
+          "subject":"Verify your email for Authifyer",
+          "htmlContent":"<h2>Hello %s</h2><p>Your verification token:</p><b>%s</b>"
         }
+        """.formatted(
+                senderEmail,
+                toEmail,
+                name,
+                verificationToken
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("api-key", brevoApiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request =
+                new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response =
+                restTemplate.postForEntity(
+                        "https://api.brevo.com/v3/smtp/email",
+                        request,
+                        String.class
+                );
+
+        log.info("Brevo response: {}", response.getBody());
+        log.info("Verification email sent to {}", toEmail);
     }
 
-//    private String buildHtmlContent(String name, String link) {
-//        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
-//                "  <div style=\"background-color:#ffffff;max-width:580px;margin:0 auto\">\n" +
-//                "    <div style=\"padding: 20px; text-align: center;\">\n" +
-//                "       <h2>Welcome to Authifyer, " + name + "!</h2>\n" +
-//                "       <p>Please click the button below to verify your account:</p>\n" +
-//                "       <a href=\"" + link + "\" style=\"background-color:#1a82e2;border-radius:4px;color:#ffffff;display:inline-block;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:200px\">Verify Email</a>\n" +
-//                "       <p style=\"font-size: 12px; color: #666; margin-top: 20px;\">Link expires in 24 hours.</p>\n" +
-//                "    </div>\n" +
-//                "  </div>\n" +
-//                "</div>";
-//    }
-
+    // ================= TOKEN CREATION =================
     @Transactional
-    public   <T extends VerifyUser> void createVerificationToken(T user){
+    public <T extends VerifyUser> void createVerificationToken(T user) {
+
+        log.warn("email verify reached");
+
         String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = VerificationToken.builder()
-                .verificationToken(token)
-                .subjectId(user.getSubjectId())
-                .expiresAt(Instant.now().plus(20, ChronoUnit.MINUTES))
-                .build();
+
+        VerificationToken verificationToken =
+                VerificationToken.builder()
+                        .verificationToken(token)
+                        .subjectId(user.getSubjectId())
+                        .expiresAt(
+                                Instant.now()
+                                        .plus(20, ChronoUnit.MINUTES))
+                        .build();
 
         verificationTokenRepo.save(verificationToken);
-//        String verifyUrl = "/api/auth/verify-email?token="+token;
-        sendVerificationEmail(user.getEmail() , user.getName(),verificationToken.getVerificationToken());
 
+        sendVerificationEmail(
+                user.getEmail(),
+                user.getName(),
+                token
+        );
     }
 }

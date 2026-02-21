@@ -38,11 +38,14 @@ public class JWTFilter extends OncePerRequestFilter {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true;
 
         String path = request.getRequestURI();
+        log.warn("should not filter " + path);
 
         return path.startsWith("/oauth2/")
                 || path.startsWith("/login/oauth2/")
                 || path.equals("/authifyer/global/signup")
                 || path.equals("/authifyer/global/login")
+                || path.equals("/authifyer/project/login")
+                || path.equals("/authifyer/project/register")
                 || path.equals("/authifyer/jwt/refresh-jwt")
                 || path.equals("/authifyer/session/refresh")
                 || path.equals("/authifyer/.well-known/jwks.json")
