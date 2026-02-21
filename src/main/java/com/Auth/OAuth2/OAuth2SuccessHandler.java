@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         RefreshResult refreshResult =  sessionService.createOAuthSession(request , oAuthProfile,publishableKey);
         AccessTokenClaims jwt;
-        if(publishableKey==null&&publishableKey.isBlank()){
+        if(publishableKey==null||publishableKey.isBlank()){
             jwt = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
         }else {
              jwt = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());

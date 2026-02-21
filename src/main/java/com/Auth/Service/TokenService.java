@@ -72,6 +72,9 @@ public class TokenService {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
 
         String subjectId = session.getSubjectId();
+        if(session.getSessionScope().equals("global")){
+            return issueGlobalAccessToken(refreshToken);
+        }
         if(subjectId.startsWith("glob_usr")){
             return issueGlobalAccessToken(refreshToken);
         }
