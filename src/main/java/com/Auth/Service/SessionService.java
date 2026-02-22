@@ -44,6 +44,8 @@ public class SessionService {
                 .createdAt(Instant.now())
                 .tokenHash(TokenHash.hash(refreshToken))
                 .publicId(IdGenerator.generatePublicSessionId())
+                .sessionScope("project")
+                .revokedAt(null)
                 .build();
 
         sessionRepo.save(session);
