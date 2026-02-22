@@ -4,6 +4,7 @@ import com.Auth.Entity.ProjectUser;
 import com.Auth.Entity.Session;
 import com.Auth.Exception.AccountSuspendedEXception;
 import com.Auth.Exception.SessionRevokedException;
+import com.Auth.Exception.UserNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.JWT.JWTKeyProvider;
 import com.Auth.Repo.GlobalUserRepo;
@@ -81,7 +82,7 @@ public class TokenService {
         if(subjectId.startsWith("glob_usr")){
             return issueGlobalAccessToken(refreshToken);
         }
-        ProjectUser user = projectUserRepo.findByAuthifyerId(session.getSubjectId()).orElseThrow(RuntimeException::new);
+        ProjectUser user = projectUserRepo.findByAuthifyerId(session.getSubjectId()).orElseThrow(UserNotFoundException::new);
         if(!user.isActive()){
             throw new AccountSuspendedEXception();
         }

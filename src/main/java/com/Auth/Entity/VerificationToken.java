@@ -26,5 +26,8 @@ public class VerificationToken {
     private String verificationToken;
 
     private Instant expiresAt;
+
+    @Builder.Default
+    private int attempts =0;
 }
 

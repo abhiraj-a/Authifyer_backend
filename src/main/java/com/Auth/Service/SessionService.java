@@ -127,7 +127,7 @@ public class SessionService {
         boolean isGlobal = publishableKey==null||publishableKey.isBlank();
         String scope = isGlobal?"global":"project";
 
-        log.info("created oauth session  scope : " + scope );
+        log.info("creating oauth session  scope : " + scope );
         String subject = null;
         String publicProjectId=null;
 //        Project project;
