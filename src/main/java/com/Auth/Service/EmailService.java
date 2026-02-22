@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -87,7 +88,9 @@ private final VerificationTokenRepo verificationTokenRepo;
 
         log.warn("email verify reached");
 
-        String token = UUID.randomUUID().toString();
+        SecureRandom secureRandom =new SecureRandom();
+        int num =100000+secureRandom.nextInt(900000);
+        String token = String.valueOf(num);
 
         VerificationToken verificationToken =
                 VerificationToken.builder()
