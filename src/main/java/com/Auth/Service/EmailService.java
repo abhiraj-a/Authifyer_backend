@@ -145,12 +145,14 @@ private final VerificationTokenRepo verificationTokenRepo;
             GlobalUser user = globalUserRepo.findBySubjectId(subjectId).orElseThrow(UserNotFoundException::new);
             user.setEmailVerified(true);
             globalUserRepo.save(user);
-            log.warn("email verified " + user.getEmail());
+            log.info("email verified : " + user.getEmail() + " now deleting the token");
+            verificationTokenRepo.delete(vt);
         } else if (subjectId.startsWith("auth_usr_")) {
             ProjectUser user = projectUserRepo.findByAuthifyerId(subjectId).orElseThrow(UserNotFoundException::new);
             user.setEmailVerified(true);
             projectUserRepo.save(user);
-            log.warn("email verified " + user.getEmail());
+            log.info("email verified :" + user.getEmail() + " now deleting the token");
+            verificationTokenRepo.delete(vt);
         }
 
     }

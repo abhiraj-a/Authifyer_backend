@@ -1,6 +1,7 @@
 package com.Auth.Controller;
 
 import com.Auth.DTO.ProjectCreationRequest;
+import com.Auth.DTO.ProjectUpdateRequest;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -52,4 +53,10 @@ public class ProjectController {
     public ResponseEntity<?> generate_key(@AuthenticationPrincipal AuthPrincipal principal,@PathVariable String publicProjectId){
        return ResponseEntity.ok(projectService.generate_key(principal,publicProjectId));
     }
-}
+
+    @PostMapping("/update/{publicProjectId}")
+    public ResponseEntity<?> updateProject(@AuthenticationPrincipal AuthPrincipal principal,@RequestBody ProjectUpdateRequest request , @PathVariable String publicProjectId) {
+        return ResponseEntity.ok(projectService.updateProject(principal,request,publicProjectId));
+    }
+
+    }

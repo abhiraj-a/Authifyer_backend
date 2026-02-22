@@ -2,6 +2,7 @@ package com.Auth.Service;
 import com.Auth.DTO.ProjectCreationRequest;
 import com.Auth.DTO.ProjectCreationResponse;
 import com.Auth.DTO.ProjectDTO;
+import com.Auth.DTO.ProjectUpdateRequest;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.ProjectUser;
@@ -161,5 +162,43 @@ public class ProjectService {
         String newSecretKey = IdGenerator.generateSecretKey();
         project.getSecretKeys().add(tokenHash.hash(newSecretKey));
         return newSecretKey;
+    }
+
+    public ProjectDTO updateProject(AuthPrincipal principal, ProjectUpdateRequest request , String publicProjectId) {
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
+        Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(ProjectNotFoundException::new);
+        if(!project.getOwner().equals(owner)){
+            throw new OwnerMismatchException();
+        }
+        project.setEmailPassEnabled(request.isEnableEmailPassword());
+        project.setName(request.getName());
+        List<OAuthProvider> newProviders =new ArrayList<>();
+        if(request.isEnableGithubOAuth()){
+            newProviders.add(OAuthProvider.GITHUB);
+        }if(request.isEnableGoogleOAuth()){
+            newProviders.add(OAuthProvider.GOOGLE);
+        }
+        project.setEnabledProviders(new ArrayList<>(newProviders));
+
+
+        projectRepo.save(project);
+
+        return  ProjectDTO.builder()
+                .publicProjectId(project.getPublicProjectId())
+                .createdAt(project.getCreatedAt())
+                .publishableKey(project.getPublishableKey())
+                .githubOauthEnabled(project.getEnabledProviders().contains(OAuthProvider.GITHUB))
+                .googleOauthEnabled(project.getEnabledProviders().contains(OAuthProvider.GOOGLE))
+                .name(project.getName())
+                .emailPassEnabled(project.isEmailPassEnabled())
+                .projectUsers(project.getProjectUsers().stream().map(p->
+                        ProjectDTO.ProjectUserDTO.builder()
+                                .email(p.getEmail())
+                                .signupAt(p.getCreatedAt())
+                                .name(p.getName())
+                                .authifyerId(p.getAuthifyerId())
+                                .isActive(p.isActive())
+                                .build()
+                ).toList()).build();
     }
 }
