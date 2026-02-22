@@ -16,47 +16,55 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectController {
 
     private final ProjectService projectService;
+
     @PostMapping(
             value = "/create",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
-    )    public ResponseEntity<?> createProject(@AuthenticationPrincipal AuthPrincipal principal ,@RequestBody ProjectCreationRequest request){
-        return ResponseEntity.ok(projectService.createProject(principal ,request ));
+    )
+    public ResponseEntity<?> createProject(@AuthenticationPrincipal AuthPrincipal principal, @RequestBody ProjectCreationRequest request) {
+        return ResponseEntity.ok(projectService.createProject(principal, request));
     }
 
     @GetMapping("/my-projects")
-    public ResponseEntity<?> Projects(@AuthenticationPrincipal AuthPrincipal principal){
+    public ResponseEntity<?> Projects(@AuthenticationPrincipal AuthPrincipal principal) {
         return ResponseEntity.ok(projectService.loadProjects(principal));
     }
 
     @GetMapping("/{publicId}")
-    public ResponseEntity<?> getProject(@AuthenticationPrincipal AuthPrincipal principal , @PathVariable String publicId){
-        return ResponseEntity.ok(projectService.getProject(principal,publicId));
+    public ResponseEntity<?> getProject(@AuthenticationPrincipal AuthPrincipal principal, @PathVariable String publicId) {
+        return ResponseEntity.ok(projectService.getProject(principal, publicId));
     }
 
     @PostMapping("/project/{publicId}/{authifyerId}/toggle-status")
-    public ResponseEntity<?>  toggleUserStatus(@AuthenticationPrincipal AuthPrincipal principal , @PathVariable String publicId,
-                                           @PathVariable String authifyerId){
-        projectService.toggleUser(principal,publicId,authifyerId);
+    public ResponseEntity<?> toggleUserStatus(@AuthenticationPrincipal AuthPrincipal principal, @PathVariable String publicId,
+                                              @PathVariable String authifyerId) {
+        projectService.toggleUser(principal, publicId, authifyerId);
         return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("/project/{publicId}/{authifyerId}/delete")
-    public ResponseEntity<?>  deleteUser(@AuthenticationPrincipal AuthPrincipal principal , @PathVariable String publicId,
-                                               @PathVariable String authifyerId){
-        projectService.deleteUser(principal,publicId,authifyerId);
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal AuthPrincipal principal, @PathVariable String publicId,
+                                        @PathVariable String authifyerId) {
+        projectService.deleteUser(principal, publicId, authifyerId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("{publicProjectId}/generate-key")
-    public ResponseEntity<?> generate_key(@AuthenticationPrincipal AuthPrincipal principal,@PathVariable String publicProjectId){
-       return ResponseEntity.ok(projectService.generate_key(principal,publicProjectId));
+    public ResponseEntity<?> generate_key(@AuthenticationPrincipal AuthPrincipal principal, @PathVariable String publicProjectId) {
+        return ResponseEntity.ok(projectService.generate_key(principal, publicProjectId));
     }
 
     @PostMapping("/update/{publicProjectId}")
-    public ResponseEntity<?> updateProject(@AuthenticationPrincipal AuthPrincipal principal,@RequestBody ProjectUpdateRequest request , @PathVariable String publicProjectId) {
-        return ResponseEntity.ok(projectService.updateProject(principal,request,publicProjectId));
+    public ResponseEntity<?> updateProject(@AuthenticationPrincipal AuthPrincipal principal, @RequestBody ProjectUpdateRequest request, @PathVariable String publicProjectId) {
+        return ResponseEntity.ok(projectService.updateProject(principal, request, publicProjectId));
     }
 
+    @DeleteMapping("/delete-project/{publicProjectId}")
+    public ResponseEntity<?> deleteProject(@AuthenticationPrincipal AuthPrincipal principal , @PathVariable String publicProjectId) {
+        projectService.deleteProject(principal, publicProjectId);
+        return ResponseEntity.ok().build();
+
     }
+}

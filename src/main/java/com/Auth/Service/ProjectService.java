@@ -3,18 +3,12 @@ import com.Auth.DTO.ProjectCreationRequest;
 import com.Auth.DTO.ProjectCreationResponse;
 import com.Auth.DTO.ProjectDTO;
 import com.Auth.DTO.ProjectUpdateRequest;
-import com.Auth.Entity.GlobalUser;
-import com.Auth.Entity.Project;
-import com.Auth.Entity.ProjectUser;
-import com.Auth.Entity.Session;
+import com.Auth.Entity.*;
 import com.Auth.Exception.OwnerMismatchException;
 import com.Auth.Exception.ProjectNotFoundException;
 import com.Auth.Exception.UserNotFoundException;
 import com.Auth.Principal.AuthPrincipal;
-import com.Auth.Repo.GlobalUserRepo;
-import com.Auth.Repo.ProjectRepo;
-import com.Auth.Repo.ProjectUserRepo;
-import com.Auth.Repo.SessionRepo;
+import com.Auth.Repo.*;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.OAuthProvider;
 import com.Auth.Util.TokenHash;
@@ -37,6 +31,7 @@ public class ProjectService {
     private final ProjectUserRepo projectUserRepo;
     private final SessionRepo sessionRepo;
     private final TokenHash tokenHash;
+    private final OAuthStorageRepo oAuthStorageRepo;
 
     @Transactional
     public ProjectCreationResponse createProject(AuthPrincipal principal ,ProjectCreationRequest projectCreationRequest) {
@@ -200,5 +195,19 @@ public class ProjectService {
                                 .isActive(p.isActive())
                                 .build()
                 ).toList()).build();
+    }
+
+    public void deleteProject(AuthPrincipal principal, String publicProjectId) {
+        GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
+        Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(ProjectNotFoundException::new);
+        if(!project.getOwner().equals(owner)){
+            throw new OwnerMismatchException();
+        }
+        List<ProjectUser> users  = projectUserRepo.findAllByProject(project);
+        List<Session> sessions = sessionRepo.findAllByPublicProjectId(publicProjectId);
+        List<OAuthStorage> oAuthStorages = oAuthStorageRepo.findAllByPublicId(publicProjectId);
+        projectUserRepo.deleteAll(users);
+        sessionRepo.deleteAll(sessions);
+        oAuthStorageRepo.deleteAll(oAuthStorages);
     }
 }

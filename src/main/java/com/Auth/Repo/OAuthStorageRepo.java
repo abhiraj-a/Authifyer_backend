@@ -2,6 +2,8 @@ package com.Auth.Repo;
 
 import com.Auth.Entity.OAuthStorage;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +19,6 @@ public interface OAuthStorageRepo extends JpaRepository<OAuthStorage , UUID> {
     Optional<OAuthStorage>  findByProviderAndProviderIdAndEmailAndPublishableKeyIsNull(String provider, String providerUserId, String email);
 
     Optional<OAuthStorage> findByProviderAndProviderIdAndPublishableKeyIsNull(String provider, String providerUserId);
+
+    List<OAuthStorage> findAllByPublicId(String publicProjectId);
 }

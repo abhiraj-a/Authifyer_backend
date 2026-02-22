@@ -19,4 +19,6 @@ public interface SessionRepo extends JpaRepository<Session, UUID> {
     List<Session> findAllBySubjectIdAndRevokedAtIsNull(String subjectId);
 
     List<Session> findBySubjectId(String subjectId);
+
+    List<Session> findAllByPublicProjectId(String publicProjectId);
 }
