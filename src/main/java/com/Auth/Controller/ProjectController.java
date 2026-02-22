@@ -63,6 +63,7 @@ public class ProjectController {
 
     @DeleteMapping("/delete-project/{publicProjectId}")
     public ResponseEntity<?> deleteProject(@AuthenticationPrincipal AuthPrincipal principal , @PathVariable String publicProjectId) {
+
         projectService.deleteProject(principal, publicProjectId);
         return ResponseEntity.ok().build();
 

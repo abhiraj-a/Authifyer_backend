@@ -198,16 +198,24 @@ public class ProjectService {
     }
 
     public void deleteProject(AuthPrincipal principal, String publicProjectId) {
+
+        log.warn("Project deletion initiated id : "+publicProjectId);
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
         Project project = projectRepo.findByPublicProjectId(publicProjectId).orElseThrow(ProjectNotFoundException::new);
         if(!project.getOwner().equals(owner)){
             throw new OwnerMismatchException();
         }
         List<ProjectUser> users  = projectUserRepo.findAllByProject(project);
+
         List<Session> sessions = sessionRepo.findAllByPublicProjectId(publicProjectId);
         List<OAuthStorage> oAuthStorages = oAuthStorageRepo.findAllByPublicId(publicProjectId);
         projectUserRepo.deleteAll(users);
+        log.warn("Project users deleted id : "+publicProjectId);
         sessionRepo.deleteAll(sessions);
+        log.warn("Sessions deleted id : "+publicProjectId);
         oAuthStorageRepo.deleteAll(oAuthStorages);
+        log.warn("OAuth deleted id : "+publicProjectId);
+        projectRepo.delete(project);
+        log.warn("Project deleted " + publicProjectId);
     }
 }

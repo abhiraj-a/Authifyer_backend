@@ -55,6 +55,7 @@ public class GlobalUserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .createdAt(Instant.now())
                 .subjectId(IdGenerator.generateGlobalUserSubjectId())
+                .name(request.getName())
                 .build();
         globalUserRepo.save(user);
 

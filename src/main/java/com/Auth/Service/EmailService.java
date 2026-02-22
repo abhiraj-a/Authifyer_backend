@@ -47,6 +47,7 @@ private final VerificationTokenRepo verificationTokenRepo;
 
     // ================= SEND EMAIL =================
     @Async
+    @Transactional
     public void sendVerificationEmail(
             String toEmail,
             String name,
@@ -63,7 +64,7 @@ private final VerificationTokenRepo verificationTokenRepo;
           },
           "to":[{"email":"%s"}],
           "subject":"Verify your email for Authifyer",
-          "htmlContent":"<h2>Hello %s</h2><p>Your verification token:</p><b>%s</b>"
+          "htmlContent":"<h2>Hello %s</h2><p>Your verification token:</p><b>%s  Please enter this token to complete your verification</b>"
         }
         """.formatted(
                 senderEmail,
