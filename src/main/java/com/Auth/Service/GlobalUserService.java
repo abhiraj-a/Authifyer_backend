@@ -4,6 +4,7 @@ import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.Session;
 import com.Auth.Exception.AccountSuspendedEXception;
+import com.Auth.Exception.AlreadyExistsException;
 import com.Auth.Exception.InvalidCredentailsException;
 import com.Auth.Exception.UserNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
@@ -47,7 +48,7 @@ public class GlobalUserService {
         GlobalUser user ;
         user = globalUserRepo.findByEmail(request.getEmail()).orElse(null);
         if(user!=null){
-            throw new UserNotFoundException();
+            throw new AlreadyExistsException();
         }
 
         user= GlobalUser.builder()

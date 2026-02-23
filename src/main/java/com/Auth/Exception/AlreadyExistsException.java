@@ -4,6 +4,6 @@ import org.springframework.http.HttpStatus;
 
 public class AlreadyExistsException extends ApiException{
     public AlreadyExistsException() {
-        super("Email already exists" , HttpStatus.BAD_REQUEST);
+                super("User already exists by oauth . Please continue with oauth login" , HttpStatus.BAD_REQUEST);
     }
 }

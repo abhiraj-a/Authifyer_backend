@@ -30,8 +30,8 @@ import java.util.Collections;
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
-    @Value("backend.url")
-    private String backendurl;
+    @Value("${backend.url}")
+    private String backendUrl;
     private final JWTKeyProvider keyProvider;
     private final SessionRepo sessionRepo;
 
@@ -73,8 +73,9 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
         JWTVerifier verifier = JWT.require(keyProvider.getAlgorithm())
-                .withIssuer(backendurl)
+                .withIssuer(backendUrl)
                 .build();
+        log.warn(backendUrl);
         DecodedJWT decodedJWT = verifier.verify(token);
 
         String authId = decodedJWT.getSubject();
