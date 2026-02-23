@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -29,8 +30,9 @@ import java.util.Collections;
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
+    @Value("backend.url")
+    private String backendurl;
     private final JWTKeyProvider keyProvider;
-    private final SessionService sessionService;
     private final SessionRepo sessionRepo;
 
     @Override
@@ -71,7 +73,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
         JWTVerifier verifier = JWT.require(keyProvider.getAlgorithm())
-                .withIssuer("http://localhost:8080")
+                .withIssuer(backendurl)
                 .build();
         DecodedJWT decodedJWT = verifier.verify(token);
 

@@ -24,7 +24,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class TokenService {
-    @Value("${backend.url:http://localhost:8080}")
+    @Value("${backend.url}")
     String backendUrl;
 
     private final JWTKeyProvider jwtKeyProvider;
