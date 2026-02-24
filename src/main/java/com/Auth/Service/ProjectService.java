@@ -99,6 +99,8 @@ public class ProjectService {
                 .googleOauthEnabled(project.getEnabledProviders().contains(OAuthProvider.GOOGLE))
                 .name(project.getName())
                 .emailPassEnabled(project.isEmailPassEnabled())
+                .secretKeys(project.getSecretKeys())
+                .ownerSubjectId(user.getSubjectId())
                 .projectUsers(project.getProjectUsers().stream().map(p->
                         ProjectDTO.ProjectUserDTO.builder()
                                 .email(p.getEmail())
@@ -186,6 +188,9 @@ public class ProjectService {
                 .googleOauthEnabled(project.getEnabledProviders().contains(OAuthProvider.GOOGLE))
                 .name(project.getName())
                 .emailPassEnabled(project.isEmailPassEnabled())
+                .ownerSubjectId(owner.getSubjectId())
+                .ownerSubjectId(owner.getSubjectId())
+                .secretKeys(project.getSecretKeys())
                 .projectUsers(project.getProjectUsers().stream().map(p->
                         ProjectDTO.ProjectUserDTO.builder()
                                 .email(p.getEmail())

@@ -18,6 +18,7 @@ public class ProjectDTO {
     private boolean githubOauthEnabled;
     private boolean emailPassEnabled;
     private List<ProjectUserDTO> projectUsers;
+    private List<String> secretKeys;
 
     @Data
     @Builder
