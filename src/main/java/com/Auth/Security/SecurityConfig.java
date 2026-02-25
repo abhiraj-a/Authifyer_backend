@@ -120,7 +120,7 @@ public class SecurityConfig {
 
             config.setAllowedOriginPatterns(List.of("*"));
 //        config.setAllowedOrigins(List.of(frontendUrl ,"http://localhost:3000" ,"http://localhost:5173"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 //        config.setExposedHeaders(List.of("Set-Cookie"));
