@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -74,6 +73,7 @@ public class ProjectUserService {
                 .lastAccessedAt(Instant.now())
                 .accessToken(claims.getAccessToken())
                 .accessTokenExpiresAt(claims.getExpires_at())
+                .refreshToken(refreshResult.getRawRefreshToken())
                 .build();
     }
 
@@ -96,7 +96,7 @@ public class ProjectUserService {
         RefreshResult refreshResult= sessionService.createSession(user.getAuthifyerId() , request.getPublicProjectId() ,servletRequest,response);
 
         Session session =refreshResult.getSession();
-        RefreshCookie.set(response, refreshResult.getRawRefreshToken());
+//        RefreshCookie.set(response, refreshResult.getRawRefreshToken());
         AccessTokenClaims claims =tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
 
         return SessionDTO.builder()
@@ -108,6 +108,7 @@ public class ProjectUserService {
                 .lastAccessedAt(Instant.now())
                 .accessToken(claims.getAccessToken())
                 .accessTokenExpiresAt(claims.getExpires_at())
+                .refreshToken(refreshResult.getRawRefreshToken())
                 .build();
     }
 
@@ -120,7 +121,7 @@ public class ProjectUserService {
         if(oAuthStorage!=null) {
             oAuthStorageRepo.delete(oAuthStorage);
         }
-        RefreshCookie.clear(response);
+//        RefreshCookie.clear(response);
         sessionRepo.deleteAll(sessionList);
         projectUserRepo.delete(user);
     }

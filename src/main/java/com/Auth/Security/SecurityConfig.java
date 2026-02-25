@@ -114,16 +114,16 @@ public class SecurityConfig {
 
 
 
-        @Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
             config.setAllowedOriginPatterns(List.of("*"));
 //        config.setAllowedOrigins(List.of(frontendUrl ,"http://localhost:3000" ,"http://localhost:5173"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Set-Cookie"));
+//        config.setExposedHeaders(List.of("Set-Cookie"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

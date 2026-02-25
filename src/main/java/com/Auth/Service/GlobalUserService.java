@@ -76,9 +76,10 @@ public class GlobalUserService {
                  .createdAt(Instant.now())
                  .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                  .lastAccessedAt(Instant.now())
-                .accessToken(claims.getAccessToken())
-                .accessTokenExpiresAt(claims.getExpires_at())
-                .build();
+                 .refreshToken(refreshResult.getRawRefreshToken())
+                 .accessToken(claims.getAccessToken())
+                 .accessTokenExpiresAt(claims.getExpires_at())
+                 .build();
     }
 
 
@@ -106,6 +107,7 @@ public class GlobalUserService {
                 .expiresAt(Instant.now().plus(Duration.ofDays(30)))
                 .accessToken(claims.getAccessToken())
                 .accessTokenExpiresAt(claims.getExpires_at())
+                .refreshToken(refreshResult.getRawRefreshToken())
                 .user(SessionDTO.UserDTO.builder()
                         .name(user.getName())
                         .provider(user.getProvider())

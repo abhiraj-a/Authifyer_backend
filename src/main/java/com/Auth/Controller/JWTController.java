@@ -16,8 +16,9 @@ public class JWTController {
 
     private final JWKSProvider jwksProvider;
     @PostMapping("/jwt/refresh-jwt")
-    public ResponseEntity<?> refreshJWT(@CookieValue("refresh_token") String refreshToken){
+    public ResponseEntity<?> refreshJWT(@RequestBody Map<String,String> payload){
 
+        String refreshToken =payload.get("refresh_token");
         if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity.status(401).body(Map.of("error", "Missing refresh token"));
         }

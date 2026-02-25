@@ -19,6 +19,7 @@ public class SessionDTO {
     private String accessToken;
     private Instant accessTokenExpiresAt;
     private UserDTO user;
+    private String refreshToken;
 
     @Data
     @Builder

@@ -1,9 +1,6 @@
 package com.Auth.Service;
 import com.Auth.Entity.*;
-import com.Auth.Exception.AccountSuspendedEXception;
-import com.Auth.Exception.ProjectNotFoundException;
-import com.Auth.Exception.SessionNotFoundException;
-import com.Auth.Exception.UserNotFoundException;
+import com.Auth.Exception.*;
 import com.Auth.OAuth2.OAuthProfile;
 import com.Auth.Repo.*;
 import com.Auth.Util.*;
@@ -12,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +47,7 @@ public class SessionService {
                 .build();
 
         sessionRepo.save(session);
-        RefreshCookie.set(response,refreshToken);
+//        RefreshCookie.set(response,refreshToken);
 
         return RefreshResult.builder()
                 .rawRefreshToken(refreshToken)
@@ -73,7 +71,7 @@ public class SessionService {
                 .userAgent(servletRequest.getHeader("User-Agent"))
                 .subjectId(subjectId)
                 .build();
-        RefreshCookie.set(response,rawRefreshToken);
+//        RefreshCookie.set(response,rawRefreshToken);
         sessionRepo.save(session);
         return RefreshResult.builder()
                 .session(session)
@@ -93,6 +91,7 @@ public class SessionService {
 
     @Transactional
     public RefreshResult rotateSession(String token, String ip, String device, String user) {
+        if(token==null || token.isBlank()) throw new ApiException("Refresh token not present" , HttpStatus.BAD_REQUEST);
         String tokenHash = TokenHash.hash(token);
         Session oldSession = sessionRepo.findByTokenHash(tokenHash).orElseThrow(SessionNotFoundException::new);
         String newRefreshToken = tokenService.generateRefreshToken();

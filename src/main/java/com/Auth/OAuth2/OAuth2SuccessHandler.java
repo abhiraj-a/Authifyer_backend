@@ -2,7 +2,6 @@ package com.Auth.OAuth2;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Service.SessionService;
 import com.Auth.Service.TokenService;
-import com.Auth.Util.RefreshCookie;
 import com.Auth.Util.RefreshResult;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,10 +66,18 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
              jwt = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
         }
 
-        RefreshCookie.set(response, refreshResult.getRawRefreshToken());
+//        RefreshCookie.set(response, refreshResult.getRawRefreshToken());
 
-        String targetUrl = UriComponentsBuilder.fromHttpUrl(targetBaseUrl)
+//        String targetUrl = UriComponentsBuilder.fromHttpUrl(targetBaseUrl)
+//                .queryParam("access_token" , jwt.getAccessToken())
+//                .queryParam("scope",refreshResult.getSession().getSessionScope())
+//                .queryParam("sid",refreshResult.getSession().getPublicId())
+//                .queryParam("pid",refreshResult.getSession().getPublicProjectId())
+//                .build().toUriString();
+
+        String targetUrl =UriComponentsBuilder.fromHttpUrl(targetBaseUrl)
                 .queryParam("access_token" , jwt.getAccessToken())
+                .queryParam("refresh_token", refreshResult.getRawRefreshToken())
                 .queryParam("scope",refreshResult.getSession().getSessionScope())
                 .queryParam("sid",refreshResult.getSession().getPublicId())
                 .queryParam("pid",refreshResult.getSession().getPublicProjectId())
