@@ -39,8 +39,8 @@ public class ProjectController {
     @PostMapping("/project/{publicId}/{authifyerId}/toggle-status")
     public ResponseEntity<?> toggleUserStatus(@AuthenticationPrincipal AuthPrincipal principal, @PathVariable String publicId,
                                               @PathVariable String authifyerId) {
-        projectService.toggleUser(principal, publicId, authifyerId);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok( projectService.toggleUser(principal, publicId, authifyerId));
     }
 
 

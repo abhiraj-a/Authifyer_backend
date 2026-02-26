@@ -1,8 +1,5 @@
 package com.Auth.Service;
-import com.Auth.DTO.ProjectCreationRequest;
-import com.Auth.DTO.ProjectCreationResponse;
-import com.Auth.DTO.ProjectDTO;
-import com.Auth.DTO.ProjectUpdateRequest;
+import com.Auth.DTO.*;
 import com.Auth.Entity.*;
 import com.Auth.Exception.OwnerMismatchException;
 import com.Auth.Exception.ProjectNotFoundException;
@@ -113,7 +110,8 @@ public class ProjectService {
 
     }
 
-    public void toggleUser(AuthPrincipal principal, String publicId, String authifyerId) {
+    @Transactional
+    public ToggleUserDTO toggleUser(AuthPrincipal principal, String publicId, String authifyerId) {
         GlobalUser owner = globalUserRepo.findBySubjectId(principal.getSubjectId()).orElseThrow(UserNotFoundException::new);
         Project project = projectRepo.findByPublicProjectId(publicId).orElseThrow(ProjectNotFoundException::new);
         if(!project.getOwner().equals(owner)){
@@ -122,6 +120,16 @@ public class ProjectService {
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
         if(user.isActive()){
             user.setActive(false);
+            return ToggleUserDTO.builder()
+                    .authifyerId(user.getAuthifyerId())
+                    .isActive(user.isActive())
+                    .build();
+        }else {
+            user.setActive(true);
+            return ToggleUserDTO.builder()
+                    .authifyerId(user.getAuthifyerId())
+                    .isActive(user.isActive())
+                    .build();
         }
     }
 
