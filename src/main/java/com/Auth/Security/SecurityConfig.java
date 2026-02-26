@@ -71,7 +71,7 @@ public class SecurityConfig {
                         "/authifyer/jwt/refresh-jwt",
                         "/api/auth/verify-email",
                         "/authifyer/.well-known/jwks.json",
-                        "/public/config/publishablekey"
+                        "/public/config/**"
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
