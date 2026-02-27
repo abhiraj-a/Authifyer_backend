@@ -1,5 +1,6 @@
 package com.Auth.OAuth2;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,15 +11,19 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
+@Component
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        log.warn("Custome oauth2 user service activated");
         // Fetch the standard user profile
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
@@ -27,9 +32,11 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             String email = oAuth2User.getAttribute("email");
 
             if (email == null) {
+                log.warn("email null executing procedure");
                 RestTemplate restTemplate = new RestTemplate();
                 HttpHeaders headers = new HttpHeaders();
                 headers.setBearerAuth(userRequest.getAccessToken().getTokenValue());
+                headers.set("User-Agent","Authifyer");
                 HttpEntity<String> entity = new HttpEntity<>("", headers);
 
                 // Call GitHub email API
