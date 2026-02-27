@@ -37,7 +37,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
 
         OAuthProfile oAuthProfile =mapper.map(oAuth2AuthenticationToken );
-
         String state = request.getParameter("state");
         String publishableKey = (String) request.getSession().getAttribute(state);
         String clientRedirectUri = (String) request.getSession().getAttribute(state + "_redirect_uri");

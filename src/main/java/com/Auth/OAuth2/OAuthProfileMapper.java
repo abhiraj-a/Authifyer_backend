@@ -9,8 +9,6 @@ public class OAuthProfileMapper {
     public  OAuthProfile map(OAuth2AuthenticationToken token){
         String provider =token.getAuthorizedClientRegistrationId();
 
-
-
         if(provider.equals("google")) {
           return   OAuthProfile.builder()
                     .provider(provider)

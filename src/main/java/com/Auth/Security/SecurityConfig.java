@@ -1,5 +1,6 @@
 package com.Auth.Security;
 import com.Auth.OAuth2.CustomAuthorizationRequestResolver;
+import com.Auth.OAuth2.CustomOauth2UserService;
 import com.Auth.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler successHandler;
     private final CustomAuthorizationRequestResolver requestResolver;
     private final ApiKeyAuthFilter apiKeyAuthFilter;
+    private final CustomOauth2UserService customOauth2UserService;
 
     @Bean
     @Order(3)
@@ -95,6 +97,7 @@ public class SecurityConfig {
                         oauth2
                                 .authorizationEndpoint(o ->
                                         o.authorizationRequestResolver(requestResolver))
+                                .userInfoEndpoint(userinfo->userinfo.userService(customOauth2UserService))
                                 .successHandler(successHandler)
                                 .failureUrl("/authifyer/login/oauth/failure")
                 )

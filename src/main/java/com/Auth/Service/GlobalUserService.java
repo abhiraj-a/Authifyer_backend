@@ -1,6 +1,7 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
 import com.Auth.Entity.GlobalUser;
+import com.Auth.Entity.OAuthStorage;
 import com.Auth.Entity.Project;
 import com.Auth.Entity.Session;
 import com.Auth.Exception.AccountSuspendedEXception;
@@ -10,6 +11,7 @@ import com.Auth.Exception.UserNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.GlobalUserRepo;
+import com.Auth.Repo.OAuthStorageRepo;
 import com.Auth.Repo.ProjectRepo;
 import com.Auth.Repo.SessionRepo;
 import com.Auth.Util.IdGenerator;
@@ -41,6 +43,7 @@ public class GlobalUserService {
     private final TokenService tokenService;
 
     private final SessionRepo sessionRepo;
+    private final OAuthStorageRepo oAuthStorageRepo;
 
     @Transactional
     public SessionDTO signup(RegisterRequest request,HttpServletRequest servletRequest, HttpServletResponse response) {

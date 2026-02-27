@@ -129,14 +129,10 @@ public class SessionService {
         log.info("creating oauth session  scope : " + scope );
         String subject = null;
         String publicProjectId=null;
-//        Project project;
-//        if (!isGlobal) {
-//          project=  projectRepo.findByPublishableKey(publishableKey)
-//                    .orElseThrow(ProjectNotFoundException::new);
-//        }
+
         if(scope.equals("global")){
 //            OAuthStorage oAuthStorage = oAuthStorageRepo.findByProviderAndProviderId(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
-            OAuthStorage oAuthStorage  ;
+            OAuthStorage oAuthStorage ;
             if(oAuthProfile.getEmail()!=null&&!oAuthProfile.getEmail().isBlank()){
                 oAuthStorage =oAuthStorageRepo.findByProviderAndProviderIdAndEmailAndPublishableKeyIsNull(oAuthProfile.getProvider(),oAuthProfile.getProviderUserId() , oAuthProfile.getEmail()).orElse(null);
             }
@@ -144,7 +140,7 @@ public class SessionService {
                 oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublishableKeyIsNull(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId()).orElse(null);
             }
 
-            if(oAuthStorage!=null){      //user already present
+            if(oAuthStorage!=null){      //user already present with this oauth
                 GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseThrow(UserNotFoundException::new);
                 if (!user.isActive()) {
                     throw new AccountSuspendedEXception();
@@ -156,7 +152,7 @@ public class SessionService {
                 if(oAuthProfile.getEmail()!=null){
                     user=globalUserRepo.findByEmail(oAuthProfile.getEmail()).orElse(null);
                 }
-                if(user!=null){    // User has present with different oauth
+                if(user!=null){    // User has present with different oauth or via email signup
                     if (!user.isActive()) {
                         throw new AccountSuspendedEXception();
                     }
