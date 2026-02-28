@@ -66,7 +66,7 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         }
 
         String customState = authorizationRequest.getState()+"::"+publishableKey+"::"+redirectUri;
-        String encodedCustomState = Base64.getEncoder().encodeToString(customState.getBytes(StandardCharsets.UTF_8));
+        String encodedCustomState = Base64.getUrlEncoder().encodeToString(customState.getBytes(StandardCharsets.UTF_8));
 
         return OAuth2AuthorizationRequest.from(authorizationRequest)
                 .state(encodedCustomState)

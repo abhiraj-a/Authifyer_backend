@@ -141,11 +141,18 @@ public class SessionService {
             }
 
             if(oAuthStorage!=null){      //user already present with this oauth
-                GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseThrow(UserNotFoundException::new);
-                if (!user.isActive()) {
-                    throw new AccountSuspendedEXception();
+                GlobalUser user = globalUserRepo.findBySubjectId(oAuthStorage.getSubjectId()).orElseGet(null);
+                if(user!=null) {
+                    if (!user.isActive()) {
+                        throw new AccountSuspendedEXception();
+                    }
+                    subject = oAuthStorage.getSubjectId();
                 }
-                subject = oAuthStorage.getSubjectId();
+                else {
+                    log.warn("Found orphan global user record deleting now");
+                    oAuthStorageRepo.delete(oAuthStorage);
+                    oAuthStorage=null;
+                }
             }
             else {
                 GlobalUser user=null;
