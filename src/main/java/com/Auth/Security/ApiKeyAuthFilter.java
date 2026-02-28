@@ -1,6 +1,7 @@
 package com.Auth.Security;
 
 import com.Auth.Entity.Project;
+import com.Auth.Exception.ProjectNotFoundException;
 import com.Auth.Repo.ProjectRepo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +25,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final ProjectRepo projectRepo;
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        log.warn("api key filter accessed");
+
+        log.warn("Server api filter accessed");
         return !request.getRequestURI().startsWith("/api/v1");
     }
 
@@ -36,7 +38,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-        Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(ProjectNotFoundException::new);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(project,null,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_SERVER")));

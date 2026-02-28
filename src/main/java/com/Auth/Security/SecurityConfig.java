@@ -85,6 +85,9 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain oauthChain(HttpSecurity http) throws Exception {
+        log.warn("========================");
+        log.warn("OAuth chain activated");
+        log.warn("========================");
         return http
                 .securityMatcher("/oauth2/**", "/login/**")
                 .csrf(AbstractHttpConfigurer::disable)
