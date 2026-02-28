@@ -50,6 +50,10 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
 //    }
 
     public OAuth2AuthorizationRequest customRequest(HttpServletRequest request, OAuth2AuthorizationRequest authorizationRequest){
+
+        if (authorizationRequest == null) {
+            return null;
+        }
         String publishableKey = request.getParameter("publishableKey");
         String redirectUri = request.getParameter("redirect_uri");
 
