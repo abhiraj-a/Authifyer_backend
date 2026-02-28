@@ -54,7 +54,7 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         if (authorizationRequest == null) {
             return null;
         }
-        String publishableKey = request.getParameter("publishable_Key");
+        String publishableKey = request.getParameter("publishable_key");
         String redirectUri = request.getParameter("redirect_uri");
 
         if(publishableKey==null){
