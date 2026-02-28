@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Slf4j
 @Component
@@ -37,24 +39,37 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.warn("OAuth success handler activated");
         log.warn("=======================");
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
-
         OAuthProfile oAuthProfile =mapper.map(oAuth2AuthenticationToken );
-        String state = request.getParameter("state");
-        String publishableKey = (String) request.getSession().getAttribute(state);
-        log.warn("Publishable key : "+publishableKey);
-        String clientRedirectUri = (String) request.getSession().getAttribute(state + "_redirect_uri");
-        log.warn("ClientRedirectUrl : "+clientRedirectUri);
-        if (state != null) {
-            request.getSession().removeAttribute(state);
-            request.getSession().removeAttribute(state + "_redirect_uri");
+//        String state = request.getParameter("state");
+//        String publishableKey = (String) request.getSession().getAttribute(state);
+//        log.warn("Publishable key : "+publishableKey);
+//        String clientRedirectUri = (String) request.getSession().getAttribute(state + "_redirect_uri");
+//        log.warn("ClientRedirectUrl : "+clientRedirectUri);
+//        if (state != null) {
+//            request.getSession().removeAttribute(state);
+//            request.getSession().removeAttribute(state + "_redirect_uri");
+//        }
+//
+//        if(clientRedirectUri!=null && !clientRedirectUri.isEmpty()){
+//            log.warn(clientRedirectUri);
+//        }
+//        else {
+//            log.warn("client redirect not found");
+//            log.warn(clientRedirectUri);
+//        }
+
+        String encodedState = request.getParameter("state");
+        String publishableKey=null;
+        String clientRedirectUri=null;
+        String decodedState = new String(Base64.getUrlDecoder().decode(encodedState), StandardCharsets.UTF_8);
+        String[]parts = decodedState.split("::",3);
+
+        if(parts.length>1){
+            publishableKey=parts[1];
         }
 
-        if(clientRedirectUri!=null && !clientRedirectUri.isEmpty()){
-            log.warn(clientRedirectUri);
-        }
-        else {
-            log.warn("client redirect not found");
-            log.warn(clientRedirectUri);
+        if(parts.length>2){
+            clientRedirectUri = parts[2];
         }
 
         String targetBaseUrl = (clientRedirectUri != null && !clientRedirectUri.isEmpty())

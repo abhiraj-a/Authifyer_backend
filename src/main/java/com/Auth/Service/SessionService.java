@@ -203,7 +203,15 @@ public class SessionService {
                 oAuthStorage = oAuthStorageRepo.findByProviderAndProviderIdAndPublishableKey(oAuthProfile.getProvider(), oAuthProfile.getProviderUserId(),publishableKey).orElse(null);
             }
             if(oAuthStorage!=null){
-                subject = oAuthStorage.getSubjectId();
+                ProjectUser existingUser = projectUserRepo.findByAuthifyerId(oAuthStorage.getSubjectId()).orElse(null);
+                if(existingUser!=null){
+                    subject = oAuthStorage.getSubjectId();
+                }
+                else{
+                    log.warn("Found orphaned OAuth record. Deleting and treating as a new user...");
+                    oAuthStorageRepo.delete(oAuthStorage);
+                    oAuthStorage = null;
+                }
             }
             else {
                 ProjectUser user=null;
@@ -241,8 +249,8 @@ public class SessionService {
                             .publishableKey(project.getPublishableKey())
                             .publicId(project.getPublicProjectId())
                             .build();
-                    projectUserRepo.save(user);
-                    oAuthStorageRepo.save(oAuthStorage1);
+                    projectUserRepo.saveAndFlush(user);
+                    oAuthStorageRepo.saveAndFlush(oAuthStorage1);
                     project.getProjectUsers().add(user);
                     projectRepo.save(project);
                     subject = user.getAuthifyerId();
