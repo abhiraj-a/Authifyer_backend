@@ -33,15 +33,10 @@ import java.util.List;
 public class GlobalUserService {
 
     private final GlobalUserRepo globalUserRepo;
-
     private final PasswordEncoder passwordEncoder;
-
     private final SessionService sessionService;
-
     private final EmailService emailService;
-
     private final TokenService tokenService;
-
     private final SessionRepo sessionRepo;
     private final OAuthStorageRepo oAuthStorageRepo;
 

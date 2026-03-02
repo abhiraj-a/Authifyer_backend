@@ -141,6 +141,7 @@ public class ProjectService {
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
         if(user.isActive()){
             user.setActive(false);
+            projectUserRepo.saveAndFlush(user);
         }
     }
 

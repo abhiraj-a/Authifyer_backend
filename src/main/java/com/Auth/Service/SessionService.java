@@ -58,7 +58,6 @@ public class SessionService {
     @Transactional
     public RefreshResult createGlobalSession(String subjectId, HttpServletRequest servletRequest, HttpServletResponse response){
         String rawRefreshToken = tokenService.generateRefreshToken();
-
         Session session = Session.builder()
                 .publicId(IdGenerator.generatePublicSessionId())
                 .sessionScope("global")
@@ -182,6 +181,7 @@ public class SessionService {
                             .createdAt(Instant.now())
                             .providerUserId(oAuthProfile.getProviderUserId())
                             .provider(oAuthProfile.getProvider())
+                            .emailVerified(true)
                             .build();
                     globalUserRepo.save(user);
                     OAuthStorage oAuthStorage1 = OAuthStorage.builder()
@@ -245,6 +245,7 @@ public class SessionService {
                             .provider(oAuthProfile.getProvider())
                             .providerId(oAuthProfile.getProviderUserId())
                             .project(project)
+                            .emailVerified(true)
                             .build();
 
                     OAuthStorage oAuthStorage1 = OAuthStorage.builder()
