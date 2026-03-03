@@ -72,6 +72,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             clientRedirectUri = parts[2];
         }
 
+        log.warn("Client redirect : " + clientRedirectUri);
         String targetBaseUrl = (clientRedirectUri != null && !clientRedirectUri.isEmpty())
                 ? clientRedirectUri
                 : frontendURL + "/auth/api/callback";
