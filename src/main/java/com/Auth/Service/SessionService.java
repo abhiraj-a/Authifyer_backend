@@ -199,7 +199,7 @@ public class SessionService {
         }
         else {
 
-            Project project = projectRepo.findByPublishableKey(publishableKey).orElseThrow(RuntimeException::new);
+            Project project = projectRepo.findByPublishableKey(publishableKey).orElseThrow(ProjectNotFoundException::new);
             publicProjectId=project.getPublicProjectId();
 
             OAuthStorage oAuthStorage ;
@@ -235,7 +235,7 @@ public class SessionService {
                             .publicId(project.getPublicProjectId())
                             .publishableKey(project.getPublishableKey())
                             .build();
-                    oAuthStorageRepo.save(newlink);
+                    oAuthStorageRepo.saveAndFlush(newlink);
                     subject=user.getAuthifyerId();
                 }else {
                     user = ProjectUser.builder()

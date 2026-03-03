@@ -153,9 +153,11 @@ public class ProjectService {
             throw new OwnerMismatchException();
         }
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
+        OAuthStorage oAuthStorage = oAuthStorageRepo.findBySubjectId(authifyerId);
         List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
         sessionRepo.deleteAll(sessions);
         projectUserRepo.delete(user);
+        oAuthStorageRepo.delete(oAuthStorage);
     }
 
     @Transactional
