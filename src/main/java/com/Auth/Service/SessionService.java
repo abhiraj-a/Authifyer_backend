@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Service
@@ -39,7 +41,7 @@ public class SessionService {
                 .publicProjectId(projectId)
                 .subjectId(authifyerId)
                 .createdAt(Instant.now())
-                .createdAt(Instant.now())
+                .expiresAt(Instant.now().plus(Duration.ofDays(7)))
                 .tokenHash(TokenHash.hash(refreshToken))
                 .publicId(IdGenerator.generatePublicSessionId())
                 .sessionScope("project")
@@ -62,6 +64,7 @@ public class SessionService {
                 .publicId(IdGenerator.generatePublicSessionId())
                 .sessionScope("global")
                 .createdAt(Instant.now())
+                .expiresAt(Instant.now().plus(Duration.ofDays(7)))
                 .revokedAt(null)
                 .IpAddress(Extractor.getClientIP(servletRequest))
                 .deviceName(Extractor.parseDeviceName(servletRequest))
@@ -93,6 +96,7 @@ public class SessionService {
         if(token==null || token.isBlank()) throw new ApiException("Refresh token not present" , HttpStatus.BAD_REQUEST);
         String tokenHash = TokenHash.hash(token);
         Session oldSession = sessionRepo.findByTokenHash(tokenHash).orElseThrow(SessionNotFoundException::new);
+        validateSession(oldSession);
         String newRefreshToken = tokenService.generateRefreshToken();
         Session newSession = Session.builder()
                 .publicProjectId(oldSession.getPublicProjectId())
@@ -101,13 +105,12 @@ public class SessionService {
                 .publicId(IdGenerator.generatePublicSessionId())
                 .revokedAt(null)
                 .createdAt(Instant.now())
+                .expiresAt(Instant.now().plus(Duration.ofDays(7)))
                 .deviceName(device)
                 .subjectId(oldSession.getSubjectId())
                 .tokenHash(TokenHash.hash(newRefreshToken))
                 .publicId(IdGenerator.generatePublicSessionId())
                 .build();
-        oldSession.setRevokedAt(Instant.now());
-        sessionRepo.save(oldSession);
 
         return RefreshResult.builder()
                 .rawRefreshToken(newRefreshToken)
@@ -115,10 +118,21 @@ public class SessionService {
                 .build();
     }
 
-    @Cacheable(value = "sessions",key = "#publicSessionId")
-    public Session getPublicIdCache(String publicId){
-        return sessionRepo.findByPublicId(publicId).orElseThrow(SessionNotFoundException::new);
+    private void validateSession(Session oldSession) {
+        if(oldSession.getRevokedAt()!=null){
+            throw new SessionRevokedException();
+        }
+        if(oldSession.getExpiresAt()!=null&&oldSession.getExpiresAt().isBefore(Instant.now())){
+            oldSession.setRevokedAt(Instant.now());
+            sessionRepo.save(oldSession);
+            throw new ApiException("Session expired please login again",HttpStatus.UNAUTHORIZED);
+        }
     }
+
+//    @Cacheable(value = "sessions",key = "#publicSessionId")
+//    public Session getPublicIdCache(String publicId){
+//        return sessionRepo.findByPublicId(publicId).orElseThrow(SessionNotFoundException::new);
+//    }
 
     @Transactional
     public RefreshResult createOAuthSession(HttpServletRequest request, OAuthProfile oAuthProfile,String publishableKey) {
@@ -274,6 +288,7 @@ public class SessionService {
         Session session=Session.builder()
                 .sessionScope(scope)
                 .createdAt(Instant.now())
+                .expiresAt(Instant.now().plus(Duration.ofDays(7)))
                 .revokedAt(null)
                 .IpAddress(Extractor.getClientIP(request))
                 .deviceName(Extractor.parseDeviceName(request))

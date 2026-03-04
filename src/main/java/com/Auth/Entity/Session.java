@@ -34,6 +34,7 @@ public class Session {
     private String deviceName;
 
     private Instant createdAt;
+    private Instant expiresAt;
 
     private Instant lastAccessedAt;
 

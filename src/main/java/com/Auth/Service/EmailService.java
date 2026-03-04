@@ -110,7 +110,7 @@ private final VerificationTokenRepo verificationTokenRepo;
                                         .plus(20, ChronoUnit.MINUTES))
                         .build();
 
-        verificationTokenRepo.save(verificationToken);
+        verificationTokenRepo.saveAndFlush(verificationToken);
 
         sendVerificationEmail(
                 user.getEmail(),
