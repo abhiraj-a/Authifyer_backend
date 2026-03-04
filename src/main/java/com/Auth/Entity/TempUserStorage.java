@@ -1,8 +1,6 @@
 package com.Auth.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +17,12 @@ public class TempUserStorage {
     @Id
     @GeneratedValue
     private UUID id;
+
+    @OneToOne
+    @Column(name = "project_usr_id")
     private ProjectUser projectUser;
+    @OneToOne
+    @Column(name = "global_usr_id")
     private  GlobalUser globalUser;
     private String subjectId;
 }
