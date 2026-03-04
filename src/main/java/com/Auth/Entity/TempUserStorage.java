@@ -19,10 +19,8 @@ public class TempUserStorage {
     private UUID id;
 
     @OneToOne
-    @Column(name = "project_usr_id")
     private ProjectUser projectUser;
     @OneToOne
-    @Column(name = "global_usr_id")
     private  GlobalUser globalUser;
     private String subjectId;
 }
