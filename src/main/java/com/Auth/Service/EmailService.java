@@ -121,7 +121,7 @@ private final VerificationTokenRepo verificationTokenRepo;
 
     @Transactional
     public void verifyEmail(VerifyEmailRequest request) {
-        VerificationToken vt= verificationTokenRepo.findByVerificationToken(request.getToken())
+        VerificationToken vt= verificationTokenRepo.findBySubjectId(request.getSubjectId())
                 .orElseThrow(VerificationTokenNotFound::new);
         if (vt.getExpiresAt().isBefore(Instant.now())) {
             verificationTokenRepo.delete(vt);
@@ -133,7 +133,7 @@ private final VerificationTokenRepo verificationTokenRepo;
         }
         if (!vt.getVerificationToken().equals(request.getToken())) {
             vt.setAttempts(vt.getAttempts() + 1);
-            verificationTokenRepo.save(vt);
+            verificationTokenRepo.saveAndFlush(vt);
             throw new ApiException("Invalid verification code.", HttpStatus.BAD_REQUEST);
         }
 

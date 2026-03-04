@@ -1,24 +1,19 @@
 package com.Auth.Service;
 import com.Auth.DTO.*;
-import com.Auth.Entity.GlobalUser;
-import com.Auth.Entity.OAuthStorage;
-import com.Auth.Entity.Project;
-import com.Auth.Entity.Session;
+import com.Auth.Entity.*;
 import com.Auth.Exception.AccountSuspendedEXception;
 import com.Auth.Exception.AlreadyExistsException;
 import com.Auth.Exception.InvalidCredentailsException;
 import com.Auth.Exception.UserNotFoundException;
 import com.Auth.JWT.AccessTokenClaims;
 import com.Auth.Principal.AuthPrincipal;
-import com.Auth.Repo.GlobalUserRepo;
-import com.Auth.Repo.OAuthStorageRepo;
-import com.Auth.Repo.ProjectRepo;
-import com.Auth.Repo.SessionRepo;
+import com.Auth.Repo.*;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.RefreshResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +22,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GlobalUserService {
@@ -38,53 +35,48 @@ public class GlobalUserService {
     private final EmailService emailService;
     private final TokenService tokenService;
     private final SessionRepo sessionRepo;
-    private final OAuthStorageRepo oAuthStorageRepo;
+    private final TempUserStorageRepo tempUserStorageRepo;
 
     @Transactional
-    public SessionDTO signup(RegisterRequest request,HttpServletRequest servletRequest, HttpServletResponse response) {
+    public Map<String, String> signup(RegisterRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
 
-        GlobalUser user ;
+        GlobalUser user;
         user = globalUserRepo.findByEmail(request.getEmail()).orElse(null);
-        if(user!=null){
+        if (user != null) {
             throw new AlreadyExistsException();
         }
 
-        user= GlobalUser.builder()
+        user = GlobalUser.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .createdAt(Instant.now())
                 .subjectId(IdGenerator.generateGlobalUserSubjectId())
                 .name(request.getName())
                 .build();
-        globalUserRepo.save(user);
+
+        TempUserStorage tempUserStorage = TempUserStorage.builder()
+                .globalUser(user)
+                .subjectId(user.getSubjectId())
+                .build();
+
+        tempUserStorageRepo.saveAndFlush(tempUserStorage);
 
         emailService.createVerificationToken(user);
 
-        RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId()
-                                   ,servletRequest,response);
+//        RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId()
+//                                   ,servletRequest,response);
+//
+//        Session session=refreshResult.getSession();
 
-        Session session=refreshResult.getSession();
-
-        AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
-
-        return SessionDTO.builder()
-                 .publicProjectId(request.getPublicProjectId())
-                 .subjectId(session.getSubjectId())
-                 .publicSessionId(session.getPublicId())
-                 .createdAt(Instant.now())
-                 .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
-                 .lastAccessedAt(Instant.now())
-                 .refreshToken(refreshResult.getRawRefreshToken())
-                 .accessToken(claims.getAccessToken())
-                 .accessTokenExpiresAt(claims.getExpires_at())
-                 .build();
+//        AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
+        return Map.of("subjectId", user.getSubjectId());
     }
 
 
     @Transactional
-    public SessionDTO login(LoginRequest request, HttpServletRequest servletRequest , HttpServletResponse response) {
+    public SessionDTO login(LoginRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
         GlobalUser user = globalUserRepo.findByEmail(request.getEmail()).orElse(null);
-        if(user==null){
+        if (user == null) {
             throw new UserNotFoundException();
         }
 
@@ -92,11 +84,11 @@ public class GlobalUserService {
             throw new AccountSuspendedEXception();
         }
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidCredentailsException();
         }
-        RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId(), servletRequest,response);
-        Session session =refreshResult.getSession();
+        RefreshResult refreshResult = sessionService.createGlobalSession(user.getSubjectId(), servletRequest, response);
+        Session session = refreshResult.getSession();
         AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
         return SessionDTO.builder()
                 .subjectId(session.getSubjectId())
@@ -128,4 +120,31 @@ public class GlobalUserService {
         }
         sessionRepo.saveAll(sessions);
     }
-}
+
+    public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
+            TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
+            GlobalUser user = tempUserStorage.getGlobalUser();
+            RefreshResult refreshResult = sessionService.createGlobalSession(user.getSubjectId(), servletRequest, response);
+            Session session = refreshResult.getSession();
+            AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
+            log.warn("Saving global user: "+user.getEmail());
+            globalUserRepo.saveAndFlush(user);
+            tempUserStorageRepo.delete(tempUserStorage);
+            log.warn("Deleting temporary user: " + user.getEmail());
+            return SessionDTO.builder()
+                    .publicProjectId(null)
+                    .publicSessionId(session.getPublicId())
+                    .lastAccessedAt(Instant.now())
+                    .subjectId(user.getSubjectId())
+                    .accessToken(claims.getAccessToken())
+                    .refreshToken(refreshResult.getRawRefreshToken())
+                    .user(SessionDTO.UserDTO.builder()
+                            .name(user.getName())
+                            .provider(user.getProvider())
+                            .email(user.getEmail())
+                            .emailVerified(user.isEmailVerified())
+                            .build())
+                    .build();
+        }
+    }
+
