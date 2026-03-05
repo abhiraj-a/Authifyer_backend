@@ -94,9 +94,7 @@ private final VerificationTokenRepo verificationTokenRepo;
     // ================= TOKEN CREATION =================
     @Transactional
     public <T extends VerifyUser> void createVerificationToken(T user) {
-
         log.warn("email verify reached");
-
         SecureRandom secureRandom =new SecureRandom();
         int num =100000+secureRandom.nextInt(900000);
         String token = String.valueOf(num);

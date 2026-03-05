@@ -40,8 +40,14 @@ public class ProjectUserService {
                                                      HttpServletResponse response) {
 
         log.warn("project signup reached ");
-        Project project = projectRepo.findByPublishableKey(request.getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
-
+        Project project=null;
+        try {
+            log.warn("Publishable key received : " + request.getPublishableKey());
+             project = projectRepo.findByPublishableKey(request.getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
+        } catch (ProjectNotFoundException e) {
+            log.warn("Publishable key received : " + request.getPublishableKey());
+            throw new ProjectNotFoundException();
+        }
 
         if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail())) {
             throw new AlreadyExistsException();
@@ -117,6 +123,7 @@ public class ProjectUserService {
 
     public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
 
+        log.warn("Session after signup activated");
         TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
         ProjectUser user =tempUserStorage.getProjectUser();
         if(!tempUserStorage.getSubjectId().equals(user.getSubjectId())){
