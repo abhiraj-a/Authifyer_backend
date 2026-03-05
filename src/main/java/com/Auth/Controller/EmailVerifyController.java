@@ -22,17 +22,20 @@ public class EmailVerifyController {
     private final GlobalUserService globalUserService;
     @PostMapping
     public ResponseEntity<?> verifyEmail(@RequestBody VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response){
-        emailService.verifyEmail(request);
-        SessionDTO sessionDTO = null;
-        if(request.getSubjectId().startsWith("auth_usr")){
-            log.warn("Project user signup initiated");
-           sessionDTO= projectUserService.makeSessionAfterSignup(request,servletRequest,response);
-        }
-        else {
-            log.warn("Global user signup initiated");
-            sessionDTO= globalUserService.makeSessionAfterSignup(request,servletRequest,response);
-        }
-        return ResponseEntity.ok(sessionDTO);
+
+
+        log.warn("Verify email initiated");
+
+//        SessionDTO sessionDTO = null;
+//        if(request.getSubjectId().startsWith("auth_usr")){
+//            log.warn("Project user signup initiated");
+//           sessionDTO= projectUserService.makeSessionAfterSignup(request,servletRequest,response);
+//        }
+//        else {
+//            log.warn("Global user signup initiated");
+//            sessionDTO= globalUserService.makeSessionAfterSignup(request,servletRequest,response);
+//        }
+        return ResponseEntity.ok(emailService.verifyEmail(request,servletRequest,response));
     }
 
 }

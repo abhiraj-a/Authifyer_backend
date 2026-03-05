@@ -1,5 +1,6 @@
 package com.Auth.Service;
 
+import com.Auth.DTO.SessionDTO;
 import com.Auth.DTO.VerifyEmailRequest;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.ProjectUser;
@@ -14,6 +15,8 @@ import com.Auth.Repo.VerificationTokenRepo;
 import com.Auth.Util.VerifyUser;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +37,8 @@ import java.util.UUID;
 @Slf4j
 public class EmailService {
 
-    private final GlobalUserRepo globalUserRepo;
-    private final ProjectUserRepo projectUserRepo;
+    private final GlobalUserService globalUserService;
+    private final ProjectUserService projectUserService;
 private final VerificationTokenRepo verificationTokenRepo;
     private final RestTemplate restTemplate;
 
@@ -118,7 +121,7 @@ private final VerificationTokenRepo verificationTokenRepo;
     }
 
     @Transactional
-    public void verifyEmail(VerifyEmailRequest request) {
+    public SessionDTO verifyEmail(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
         VerificationToken vt= verificationTokenRepo.findBySubjectId(request.getSubjectId())
                 .orElseThrow(VerificationTokenNotFound::new);
         if (vt.getExpiresAt().isBefore(Instant.now())) {
@@ -140,19 +143,31 @@ private final VerificationTokenRepo verificationTokenRepo;
             log.warn("Subject id did not match");
             throw new ApiException("Invalid" , HttpStatus.BAD_REQUEST);
         }
-        if(subjectId.startsWith("glob_usr_")){
-            GlobalUser user = globalUserRepo.findBySubjectId(subjectId).orElseThrow(UserNotFoundException::new);
-            user.setEmailVerified(true);
-            globalUserRepo.save(user);
-            log.info("email verified : " + user.getEmail() + " now deleting the token");
-            verificationTokenRepo.delete(vt);
-        } else if (subjectId.startsWith("auth_usr_")) {
-            ProjectUser user = projectUserRepo.findByAuthifyerId(subjectId).orElseThrow(UserNotFoundException::new);
-            user.setEmailVerified(true);
-            projectUserRepo.save(user);
-            log.info("email verified :" + user.getEmail() + " now deleting the token");
-            verificationTokenRepo.delete(vt);
-        }
 
+            SessionDTO sessionDTO = null;
+            if (request.getSubjectId().startsWith("auth_usr")) {
+                log.warn("Project user signup initiated");
+                sessionDTO = projectUserService.makeSessionAfterSignup(request, servletRequest, response);
+            } else {
+                log.warn("Global user signup initiated");
+                sessionDTO = globalUserService.makeSessionAfterSignup(request, servletRequest, response);
+            }
+
+//        if(subjectId.startsWith("glob_usr_")){
+//            GlobalUser user = globalUserRepo.findBySubjectId(subjectId).orElseThrow(UserNotFoundException::new);
+//            user.setEmailVerified(true);
+//            globalUserRepo.save(user);
+//            log.info("email verified : " + user.getEmail() + " now deleting the token");
+//            verificationTokenRepo.delete(vt);
+//        } else if (subjectId.startsWith("auth_usr_")) {
+//            ProjectUser user = projectUserRepo.findByAuthifyerId(subjectId).orElseThrow(UserNotFoundException::new);
+//            user.setEmailVerified(true);
+//            projectUserRepo.save(user);
+//            log.info("email verified :" + user.getEmail() + " now deleting the token");
+//            verificationTokenRepo.delete(vt);
+//        }
+
+            return sessionDTO;
+        }
     }
-}
+
