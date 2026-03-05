@@ -51,6 +51,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 || path.equals("/authifyer/jwt/refresh-jwt")
                 || path.equals("/authifyer/session/refresh")
                 || path.equals("/authifyer/.well-known/jwks.json")
+                || path.equals("/authifyer/project/verify-email")
                 || path.equals("/api/auth/verify-email");
     }
 

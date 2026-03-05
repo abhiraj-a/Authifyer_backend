@@ -40,7 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
 
         return http
-                .securityMatcher("/authifyer/**", "/api/**")
+                .securityMatcher(/*"/authifyer/**",*/ "/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -73,7 +73,8 @@ public class SecurityConfig {
                         "/authifyer/jwt/refresh-jwt",
                         "/api/auth/verify-email",
                         "/authifyer/.well-known/jwks.json",
-                        "/public/config/**"
+                        "/public/config/**",
+                        "/authifyer/project/verify-email"
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
