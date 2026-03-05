@@ -17,7 +17,6 @@ public class TempUserStorage {
     @Id
     @GeneratedValue
     private UUID id;
-
     private String subjectId;
     private String email;
     private String name;
