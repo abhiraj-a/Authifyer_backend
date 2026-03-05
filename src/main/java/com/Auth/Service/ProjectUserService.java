@@ -70,7 +70,7 @@ public class ProjectUserService {
     public SessionDTO login_email_password(PasswordProjectLoginRequestDTO request, HttpServletRequest servletRequest,
                                                                 HttpServletResponse response) {
 
-        Project project = projectRepo.findByPublicProjectId(request.getPublicProjectId()).orElseThrow(RuntimeException::new);
+        Project project = projectRepo.findByPublishableKey(request.getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
         ProjectUser user = projectUserRepo.findByEmailAndProject(request.getEmail(),project)
                 .orElseThrow(RuntimeException::new);
         if(user.getPassword()==null){
@@ -82,7 +82,7 @@ public class ProjectUserService {
         if(!user.isActive()){
             throw new AccountSuspendedEXception();
         }
-        RefreshResult refreshResult= sessionService.createSession(user.getAuthifyerId() , request.getPublicProjectId() ,servletRequest,response);
+        RefreshResult refreshResult= sessionService.createSession(user.getAuthifyerId() , request.getPublishableKey() ,servletRequest,response);
 
         Session session =refreshResult.getSession();
 //        RefreshCookie.set(response, refreshResult.getRawRefreshToken());
