@@ -93,7 +93,7 @@ private final VerificationTokenRepo verificationTokenRepo;
 
     // ================= TOKEN CREATION =================
     @Transactional
-    public <T extends VerifyUser> void createVerificationToken(T user) {
+    public <T extends VerifyUser> void createVerificationToken(String name , String email,String subjectId) {
         log.warn("email verify reached");
         SecureRandom secureRandom =new SecureRandom();
         int num =100000+secureRandom.nextInt(900000);
@@ -102,7 +102,7 @@ private final VerificationTokenRepo verificationTokenRepo;
         VerificationToken verificationToken =
                 VerificationToken.builder()
                         .verificationToken(token)
-                        .subjectId(user.getSubjectId())
+                        .subjectId(subjectId)
                         .expiresAt(
                                 Instant.now()
                                         .plus(20, ChronoUnit.MINUTES))
@@ -111,8 +111,8 @@ private final VerificationTokenRepo verificationTokenRepo;
         verificationTokenRepo.saveAndFlush(verificationToken);
 
         sendVerificationEmail(
-                user.getEmail(),
-                user.getName(),
+                email,
+                name,
                 token
         );
     }

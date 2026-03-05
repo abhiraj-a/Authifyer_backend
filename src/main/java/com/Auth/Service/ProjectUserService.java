@@ -53,23 +53,26 @@ public class ProjectUserService {
             throw new AlreadyExistsException();
         }
 
-        ProjectUser projectUser = projectUserRepo.save(ProjectUser.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .project(project)
-                .authifyerId(IdGenerator.generateAuthifyerId())
-                .createdAt(Instant.now())
-                .build());
+//        ProjectUser projectUser = projectUserRepo.save(ProjectUser.builder()
+//                .email(request.getEmail())
+//                .password(passwordEncoder.encode(request.getPassword()))
+//                .project(project)
+//                .authifyerId(IdGenerator.generateAuthifyerId())
+//                .createdAt(Instant.now())
+//                .build());
 //        projectUserRepo.saveAndFlush(projectUser);
         TempUserStorage tempUserStorage = TempUserStorage.builder()
-                .projectUser(projectUser)
-                .subjectId(projectUser.getSubjectId())
+                .subjectId(IdGenerator.generateAuthifyerId())
+                .project(project)
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .name(request.getName())
                 .build();
         tempUserStorageRepo.saveAndFlush(tempUserStorage);
-        emailService.createVerificationToken(projectUser);
+        emailService.createVerificationToken(tempUserStorage.getName(),tempUserStorage.getEmail(),tempUserStorage.getSubjectId());
 //        projectRepo.save(project);
 
-        return Map.of("subjectId" ,projectUser.getSubjectId());
+        return Map.of("subjectId" ,tempUserStorage.getSubjectId());
     }
 
     @Transactional
@@ -123,9 +126,19 @@ public class ProjectUserService {
 
     public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
 
+        TokenHash tokenHash = new TokenHash();
         log.warn("Session after signup activated");
         TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
-        ProjectUser user =tempUserStorage.getProjectUser();
+        ProjectUser user =ProjectUser.builder()
+                .emailVerified(true)
+                .name(tempUserStorage.getName())
+                .authifyerId(tempUserStorage.getSubjectId())
+                .email(tempUserStorage.getEmail())
+                .password(tokenHash.hash(tempUserStorage.getPassword()))
+                .createdAt(Instant.now())
+                .project(tempUserStorage.getProject())
+                .build();
+
         if(!tempUserStorage.getSubjectId().equals(user.getSubjectId())){
             throw new ApiException("Invalid " , HttpStatus.BAD_REQUEST);
         }

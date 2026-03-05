@@ -10,6 +10,7 @@ import com.Auth.Principal.AuthPrincipal;
 import com.Auth.Repo.*;
 import com.Auth.Util.IdGenerator;
 import com.Auth.Util.RefreshResult;
+import com.Auth.Util.TokenHash;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -55,13 +56,17 @@ public class GlobalUserService {
                 .build();
 
         TempUserStorage tempUserStorage = TempUserStorage.builder()
-                .globalUser(user)
-                .subjectId(user.getSubjectId())
+                .subjectId(IdGenerator.generateAuthifyerId())
+                .project(null)
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .name(request.getName())
                 .build();
 
         tempUserStorageRepo.saveAndFlush(tempUserStorage);
 
-        emailService.createVerificationToken(user);
+        emailService.createVerificationToken(tempUserStorage.getName(),tempUserStorage.getEmail(),tempUserStorage.getSubjectId());
+
 
 //        RefreshResult refreshResult =sessionService.createGlobalSession(user.getSubjectId()
 //                                   ,servletRequest,response);
@@ -122,8 +127,19 @@ public class GlobalUserService {
     }
 
     public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
+
+
+            TokenHash tokenHash=new TokenHash();
+
             TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
-            GlobalUser user = tempUserStorage.getGlobalUser();
+            GlobalUser user = GlobalUser.builder()
+                    .emailVerified(true)
+                    .name(tempUserStorage.getName())
+                    .subjectId(tempUserStorage.getSubjectId())
+                    .email(tempUserStorage.getEmail())
+                    .password(tokenHash.hash(tempUserStorage.getPassword()))
+                    .createdAt(Instant.now())
+                    .build();
             RefreshResult refreshResult = sessionService.createGlobalSession(user.getSubjectId(), servletRequest, response);
             Session session = refreshResult.getSession();
             AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());

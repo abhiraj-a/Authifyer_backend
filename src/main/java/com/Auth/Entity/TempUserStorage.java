@@ -18,9 +18,10 @@ public class TempUserStorage {
     @GeneratedValue
     private UUID id;
 
-    @OneToOne
-    private ProjectUser projectUser;
-    @OneToOne
-    private  GlobalUser globalUser;
     private String subjectId;
+    private String email;
+    private String name;
+    private String password;
+    @OneToOne
+    private Project project;
 }
