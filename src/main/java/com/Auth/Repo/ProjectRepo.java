@@ -17,5 +17,5 @@ public interface ProjectRepo extends JpaRepository<Project , UUID>
 
     Optional<Project> findBySecretKeys(String secretKey);
 
-    Optional<Project> findByPublishableKey(String publicProjectId);
+    Optional<Project> findByPublishableKey(String publishableKey);
 }

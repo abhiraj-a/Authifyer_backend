@@ -42,6 +42,7 @@ public class ProjectUserService {
         log.warn("project signup reached ");
         Project project = projectRepo.findByPublishableKey(request.getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
 
+
         if(projectUserRepo.existsByProjectAndEmail(project,request.getEmail())) {
             throw new AlreadyExistsException();
         }
