@@ -126,41 +126,43 @@ public class GlobalUserService {
         sessionRepo.saveAll(sessions);
     }
 
-    public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
 
-
-            TokenHash tokenHash=new TokenHash();
-
-            TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
-            GlobalUser user = GlobalUser.builder()
-                    .emailVerified(true)
-                    .name(tempUserStorage.getName())
-                    .subjectId(tempUserStorage.getSubjectId())
-                    .email(tempUserStorage.getEmail())
-                    .password(tokenHash.hash(tempUserStorage.getPassword()))
-                    .createdAt(Instant.now())
-                    .build();
-            RefreshResult refreshResult = sessionService.createGlobalSession(user.getSubjectId(), servletRequest, response);
-            Session session = refreshResult.getSession();
-            AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
-            log.warn("Saving global user: "+user.getEmail());
-            globalUserRepo.saveAndFlush(user);
-            tempUserStorageRepo.delete(tempUserStorage);
-            log.warn("Deleting temporary user: " + user.getEmail());
-            return SessionDTO.builder()
-                    .publicProjectId(null)
-                    .publicSessionId(session.getPublicId())
-                    .lastAccessedAt(Instant.now())
-                    .subjectId(user.getSubjectId())
-                    .accessToken(claims.getAccessToken())
-                    .refreshToken(refreshResult.getRawRefreshToken())
-                    .user(SessionDTO.UserDTO.builder()
-                            .name(user.getName())
-                            .provider(user.getProvider())
-                            .email(user.getEmail())
-                            .emailVerified(user.isEmailVerified())
-                            .build())
-                    .build();
-        }
+//
+//    public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
+//
+//
+//            TokenHash tokenHash=new TokenHash();
+//
+//            TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
+//            GlobalUser user = GlobalUser.builder()
+//                    .emailVerified(true)
+//                    .name(tempUserStorage.getName())
+//                    .subjectId(tempUserStorage.getSubjectId())
+//                    .email(tempUserStorage.getEmail())
+//                    .password(tokenHash.hash(tempUserStorage.getPassword()))
+//                    .createdAt(Instant.now())
+//                    .build();
+//            RefreshResult refreshResult = sessionService.createGlobalSession(user.getSubjectId(), servletRequest, response);
+//            Session session = refreshResult.getSession();
+//            AccessTokenClaims claims = tokenService.issueGlobalAccessToken(refreshResult.getRawRefreshToken());
+//            log.warn("Saving global user: "+user.getEmail());
+//            globalUserRepo.saveAndFlush(user);
+//            tempUserStorageRepo.delete(tempUserStorage);
+//            log.warn("Deleting temporary user: " + user.getEmail());
+//            return SessionDTO.builder()
+//                    .publicProjectId(null)
+//                    .publicSessionId(session.getPublicId())
+//                    .lastAccessedAt(Instant.now())
+//                    .subjectId(user.getSubjectId())
+//                    .accessToken(claims.getAccessToken())
+//                    .refreshToken(refreshResult.getRawRefreshToken())
+//                    .user(SessionDTO.UserDTO.builder()
+//                            .name(user.getName())
+//                            .provider(user.getProvider())
+//                            .email(user.getEmail())
+//                            .emailVerified(user.isEmailVerified())
+//                            .build())
+//                    .build();
+//        }
     }
 

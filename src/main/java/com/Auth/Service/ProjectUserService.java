@@ -123,50 +123,50 @@ public class ProjectUserService {
         sessionRepo.deleteAll(sessionList);
         projectUserRepo.delete(user);
     }
-
-    public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
-
-        TokenHash tokenHash = new TokenHash();
-        log.warn("Session after signup activated");
-        TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
-        ProjectUser user =ProjectUser.builder()
-                .emailVerified(true)
-                .name(tempUserStorage.getName())
-                .authifyerId(tempUserStorage.getSubjectId())
-                .email(tempUserStorage.getEmail())
-                .password(tokenHash.hash(tempUserStorage.getPassword()))
-                .createdAt(Instant.now())
-                .project(tempUserStorage.getProject())
-                .build();
-
-        if(!tempUserStorage.getSubjectId().equals(user.getSubjectId())){
-            throw new ApiException("Invalid " , HttpStatus.BAD_REQUEST);
-        }
-        RefreshResult refreshResult = sessionService.createSession(user.getAuthifyerId(),  user.getProject().getPublishableKey(),servletRequest,response );
-        Session session =refreshResult.getSession();
-        AccessTokenClaims claims = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
-        Project  project = projectRepo.findByPublishableKey(user.getProject().getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
-        project.getProjectUsers().add(user);
-        log.warn("Saving project user : "+user.getEmail());
-        projectUserRepo.saveAndFlush(user);
-        projectRepo.saveAndFlush(project);
-        log.warn("Deleting temporary user: " + user.getEmail());
-        tempUserStorageRepo.delete(tempUserStorage);
-
-        return SessionDTO.builder()
-                .createdAt(Instant.now())
-                .accessToken(claims.getAccessToken())
-                .refreshToken(refreshResult.getRawRefreshToken())
-                .subjectId(user.getSubjectId())
-                .publicSessionId(session.getPublicId())
-                .publicProjectId(session.getPublicProjectId())
-                .expiresAt(Instant.now().plus(Duration.ofDays(7)))
-                .user(SessionDTO.UserDTO.builder()
-                        .name(user.getName())
-                        .emailVerified(user.isEmailVerified())
-                        .email(user.getEmail())
-                        .subjectId(user.getSubjectId())
-                        .build())
-                .build();
-    }
+//
+//    public SessionDTO makeSessionAfterSignup(VerifyEmailRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
+//
+//        TokenHash tokenHash = new TokenHash();
+//        log.warn("Session after signup activated");
+//        TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
+//        ProjectUser user =ProjectUser.builder()
+//                .emailVerified(true)
+//                .name(tempUserStorage.getName())
+//                .authifyerId(tempUserStorage.getSubjectId())
+//                .email(tempUserStorage.getEmail())
+//                .password(tokenHash.hash(tempUserStorage.getPassword()))
+//                .createdAt(Instant.now())
+//                .project(tempUserStorage.getProject())
+//                .build();
+//
+//        if(!tempUserStorage.getSubjectId().equals(user.getSubjectId())){
+//            throw new ApiException("Invalid " , HttpStatus.BAD_REQUEST);
+//        }
+//        RefreshResult refreshResult = sessionService.createSession(user.getAuthifyerId(),  user.getProject().getPublishableKey(),servletRequest,response );
+//        Session session =refreshResult.getSession();
+//        AccessTokenClaims claims = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
+//        Project  project = projectRepo.findByPublishableKey(user.getProject().getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
+//        project.getProjectUsers().add(user);
+//        log.warn("Saving project user : "+user.getEmail());
+//        projectUserRepo.saveAndFlush(user);
+//        projectRepo.saveAndFlush(project);
+//        log.warn("Deleting temporary user: " + user.getEmail());
+//        tempUserStorageRepo.delete(tempUserStorage);
+//
+//        return SessionDTO.builder()
+//                .createdAt(Instant.now())
+//                .accessToken(claims.getAccessToken())
+//                .refreshToken(refreshResult.getRawRefreshToken())
+//                .subjectId(user.getSubjectId())
+//                .publicSessionId(session.getPublicId())
+//                .publicProjectId(session.getPublicProjectId())
+//                .expiresAt(Instant.now().plus(Duration.ofDays(7)))
+//                .user(SessionDTO.UserDTO.builder()
+//                        .name(user.getName())
+//                        .emailVerified(user.isEmailVerified())
+//                        .email(user.getEmail())
+//                        .subjectId(user.getSubjectId())
+//                        .build())
+//                .build();
+//    }
 }
