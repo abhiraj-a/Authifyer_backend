@@ -26,6 +26,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         log.warn("Server api filter accessed");
+        log.warn("incoming request uri : "+request.getRequestURI());
         return !request.getRequestURI().startsWith("/api/v1");
     }
 

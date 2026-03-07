@@ -39,8 +39,9 @@ public class SecurityConfig {
     @Order(3)
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
 
+        log.warn("api chain accessed");
         return http
-                .securityMatcher(/*"/authifyer/**",*/ "/api/**")
+                .securityMatcher("/authifyer/**", "/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
