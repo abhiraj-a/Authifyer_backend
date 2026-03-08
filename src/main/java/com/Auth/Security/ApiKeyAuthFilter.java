@@ -25,7 +25,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final ProjectRepo projectRepo;
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        log.warn("Server api filter accessed");
+
         log.warn("incoming request uri : "+request.getRequestURI());
         return !request.getRequestURI().startsWith("/api/v1");
     }
@@ -33,6 +33,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        log.warn("Server api filter accessed");
         String secretKey = request.getHeader("x-secret-key");
         if(secretKey==null||secretKey.isBlank()){
             filterChain.doFilter(request,response);

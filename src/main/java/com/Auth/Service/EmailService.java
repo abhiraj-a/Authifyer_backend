@@ -34,7 +34,6 @@ import java.util.UUID;
 @Slf4j
 public class EmailService {
 
-//    private final GlobalUserService globalUserService;
     private final TempUserStorageRepo tempUserStorageRepo;
     private final SessionService sessionService;
     private final TokenService tokenService;
@@ -43,6 +42,7 @@ public class EmailService {
     private final ProjectRepo projectRepo;
     private final VerificationTokenRepo verificationTokenRepo;
     private final RestTemplate restTemplate;
+    private final TokenHash tokenHash;
 
     @Value("${brevo.api.key}")
     private String brevoApiKey;
@@ -151,7 +151,6 @@ public class EmailService {
                 log.warn("Project user signup initiated");
 
 
-                TokenHash tokenHash = new TokenHash();
                 log.warn("Session after signup activated");
                 TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
                 ProjectUser user =ProjectUser.builder()
@@ -195,9 +194,6 @@ public class EmailService {
                         .build();
             } else {
                 log.warn("Global user signup initiated");
-//                sessionDTO = globalUserService.makeSessionAfterSignup(request, servletRequest, response);
-                TokenHash tokenHash=new TokenHash();
-
                 TempUserStorage tempUserStorage = tempUserStorageRepo.findBySubjectId(request.getSubjectId());
                 GlobalUser user = GlobalUser.builder()
                         .emailVerified(true)
