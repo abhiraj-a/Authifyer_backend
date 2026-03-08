@@ -20,6 +20,7 @@ import org.springframework.http.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -50,7 +51,7 @@ public class EmailService {
     @Value("${mail.sender.email}")
     private String senderEmail;
 
-    // ================= SEND EMAIL =================
+    private final PasswordEncoder passwordEncoder;
     @Async
     @Transactional
     public void sendVerificationEmail(
@@ -158,7 +159,7 @@ public class EmailService {
                         .name(tempUserStorage.getName())
                         .authifyerId(tempUserStorage.getSubjectId())
                         .email(tempUserStorage.getEmail())
-                        .password(tokenHash.hash(tempUserStorage.getPassword()))
+                        .password(passwordEncoder.encode(tempUserStorage.getPassword()))
                         .createdAt(Instant.now())
                         .project(tempUserStorage.getProject())
                         .build();
@@ -200,7 +201,7 @@ public class EmailService {
                         .name(tempUserStorage.getName())
                         .subjectId(tempUserStorage.getSubjectId())
                         .email(tempUserStorage.getEmail())
-                        .password(tokenHash.hash(tempUserStorage.getPassword()))
+                        .password(passwordEncoder.encode(tempUserStorage.getPassword()))
                         .createdAt(Instant.now())
                         .build();
                 RefreshResult refreshResult = sessionService.createGlobalSession(user.getSubjectId(), servletRequest, response);
