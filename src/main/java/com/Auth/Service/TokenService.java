@@ -2,6 +2,7 @@ package com.Auth.Service;
 import com.Auth.Entity.GlobalUser;
 import com.Auth.Entity.ProjectUser;
 import com.Auth.Entity.Session;
+import com.Auth.Entity.TempUserStorage;
 import com.Auth.Exception.AccountSuspendedEXception;
 import com.Auth.Exception.SessionRevokedException;
 import com.Auth.Exception.UserNotFoundException;
@@ -10,6 +11,7 @@ import com.Auth.JWT.JWTKeyProvider;
 import com.Auth.Repo.GlobalUserRepo;
 import com.Auth.Repo.ProjectUserRepo;
 import com.Auth.Repo.SessionRepo;
+import com.Auth.Repo.TempUserStorageRepo;
 import com.Auth.Util.TokenHash;
 import com.auth0.jwt.JWT;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class TokenService {
     private final JWTKeyProvider jwtKeyProvider;
 
     private final SessionRepo sessionRepo;
+    private final TempUserStorageRepo tempUserStorageRepo;
 
     private final TokenHash TokenHash;
     private final GlobalUserRepo globalUserRepo;
@@ -74,7 +77,6 @@ public class TokenService {
 //    @Cacheable
     public AccessTokenClaims issueAccessToken(String refreshToken) {
         Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
-
         String subjectId = session.getSubjectId();
         if(session.getSessionScope().equals("global")){
             return issueGlobalAccessToken(refreshToken);
@@ -90,7 +92,6 @@ public class TokenService {
             throw new SessionRevokedException();
         }
         Instant now = Instant.now();
-
        String accessToken = JWT.create()
                .withKeyId(jwtKeyProvider.getKeyId())
                 .withSubject(session.getSubjectId())
@@ -107,4 +108,63 @@ public class TokenService {
                .expires_at(Instant.now().plusSeconds(300))
                .build();
     }
+
+    public AccessTokenClaims issueAccessToken_WhileSignup(String refreshToken){
+        Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
+        String subjectId = session.getSubjectId();
+        if(subjectId.startsWith("glob_usr")){
+            return issueGlobalAccessToken_WhileSignup(refreshToken);
+        }
+        TempUserStorage user = tempUserStorageRepo.findBySubjectId(session.getSubjectId());
+        if (session.getRevokedAt() != null) {
+            throw new SessionRevokedException();
+        }
+
+        Instant now = Instant.now();
+        String accessToken = JWT.create()
+                .withKeyId(jwtKeyProvider.getKeyId())
+                .withSubject(session.getSubjectId())
+                .withClaim("sid",session.getPublicId())
+                .withClaim("pid" , session.getPublicProjectId())
+                .withClaim("scope" , "project")
+                .withClaim("email",user.getEmail())
+                .withClaim("name",user.getName())
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plusSeconds(300)))
+                .withIssuer(backendUrl)
+                .sign(jwtKeyProvider.getAlgorithm());
+        return AccessTokenClaims.builder()
+                .accessToken(accessToken)
+                .issued_at(Instant.now())
+                .expires_at(Instant.now().plusSeconds(300))
+                .build();
+
+    }
+
+    private AccessTokenClaims issueGlobalAccessToken_WhileSignup(String refreshToken) {
+        Session session = sessionRepo.findByTokenHash(TokenHash.hash(refreshToken)).orElseThrow(RuntimeException::new);
+        if (session.getRevokedAt() != null) {
+            throw new SessionRevokedException();
+        }
+        TempUserStorage user = tempUserStorageRepo.findBySubjectId(session.getSubjectId());
+        Instant now = Instant.now();
+        String jwt=  JWT.create()
+                .withSubject(session.getSubjectId())
+                .withKeyId(jwtKeyProvider.getKeyId())
+                .withClaim("sid",session.getPublicId())
+                .withClaim("scope" , "global")
+                .withClaim("email",user.getEmail())
+                .withClaim("name",user.getName())
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plusSeconds(60)))
+                .withIssuer(backendUrl)
+                .sign(jwtKeyProvider.getAlgorithm());
+        return AccessTokenClaims.builder()
+                .accessToken(jwt)
+                .issued_at(Instant.now())
+                .expires_at(Instant.now().plusSeconds(60))
+                .build();
+
+    }
+
 }

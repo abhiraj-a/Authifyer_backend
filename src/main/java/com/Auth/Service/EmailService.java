@@ -168,7 +168,7 @@ public class EmailService {
                 }
                 RefreshResult refreshResult = sessionService.createSession(user.getAuthifyerId(),  user.getProject().getPublishableKey(),servletRequest,response );
                 Session session =refreshResult.getSession();
-                AccessTokenClaims claims = tokenService.issueAccessToken(refreshResult.getRawRefreshToken());
+                AccessTokenClaims claims = tokenService.issueAccessToken_WhileSignup(refreshResult.getRawRefreshToken());
                 Project  project = projectRepo.findByPublishableKey(user.getProject().getPublishableKey()).orElseThrow(ProjectNotFoundException::new);
                 project.getProjectUsers().add(user);
                 log.warn("Saving project user : "+user.getEmail());

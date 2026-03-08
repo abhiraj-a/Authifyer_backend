@@ -48,7 +48,7 @@ public class SessionService {
                 .revokedAt(null)
                 .build();
 
-        sessionRepo.save(session);
+        sessionRepo.saveAndFlush(session);
 //        RefreshCookie.set(response,refreshToken);
 
         return RefreshResult.builder()
