@@ -40,24 +40,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.warn("=======================");
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
         OAuthProfile oAuthProfile =mapper.map(oAuth2AuthenticationToken );
-//        String state = request.getParameter("state");
-//        String publishableKey = (String) request.getSession().getAttribute(state);
-//        log.warn("Publishable key : "+publishableKey);
-//        String clientRedirectUri = (String) request.getSession().getAttribute(state + "_redirect_uri");
-//        log.warn("ClientRedirectUrl : "+clientRedirectUri);
-//        if (state != null) {
-//            request.getSession().removeAttribute(state);
-//            request.getSession().removeAttribute(state + "_redirect_uri");
-//        }
-//
-//        if(clientRedirectUri!=null && !clientRedirectUri.isEmpty()){
-//            log.warn(clientRedirectUri);
-//        }
-//        else {
-//            log.warn("client redirect not found");
-//            log.warn(clientRedirectUri);
-//        }
-
         String encodedState = request.getParameter("state");
         String publishableKey=null;
         String clientRedirectUri=null;

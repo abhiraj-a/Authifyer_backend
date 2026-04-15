@@ -139,9 +139,11 @@ public class ProjectService {
         Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(ProjectNotFoundException::new);
         String authifyerId = payload.get("userId");
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
-        if(user.isActive()){
+        if(project.getProjectUsers().contains(user)) {
+            if(user.isActive()){
             user.setActive(false);
             projectUserRepo.saveAndFlush(user);
+            }
         }
     }
 
@@ -155,9 +157,13 @@ public class ProjectService {
         ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
         OAuthStorage oAuthStorage = oAuthStorageRepo.findBySubjectId(authifyerId);
         List<Session> sessions =sessionRepo.findAllBySubjectIdAndRevokedAtIsNull(authifyerId);
-        sessionRepo.deleteAll(sessions);
+        if(sessions!=null) {
+            sessionRepo.deleteAll(sessions);
+        }
+        if(oAuthStorage!=null) {
+            oAuthStorageRepo.delete(oAuthStorage);
+        }
         projectUserRepo.delete(user);
-        oAuthStorageRepo.delete(oAuthStorage);
     }
 
     @Transactional
@@ -233,5 +239,14 @@ public class ProjectService {
         log.warn("OAuth deleted id : "+publicProjectId);
         projectRepo.delete(project);
         log.warn("Project deleted " + publicProjectId);
+    }
+
+    public void deleteUserViaKey(String secretKey, Map<String, String> payload) {
+        Project project = projectRepo.findBySecretKeys(secretKey).orElseThrow(ProjectNotFoundException::new);
+        String authifyerId = payload.get("userId");
+        ProjectUser user = projectUserRepo.findByAuthifyerId(authifyerId).orElseThrow(UserNotFoundException::new);
+        if(project.getProjectUsers().contains(user)) {
+            projectUserRepo.delete(user);
+        }
     }
 }

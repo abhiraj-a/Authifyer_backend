@@ -20,34 +20,6 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(repo,"/oauth2/authorization");
     }
 
-//    @Override
-//    public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-//        OAuth2AuthorizationRequest authRequest=defaultResolver.resolve(request);
-//        savePublishableKeyToSession(request,authRequest);
-//        return authRequest;
-//    }
-//
-//    @Override
-//    public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
-//        OAuth2AuthorizationRequest authRequest=defaultResolver.resolve(request,clientRegistrationId);
-//        savePublishableKeyToSession(request,authRequest);
-//        return authRequest;
-//    }
-
-//    private void savePublishableKeyToSession(HttpServletRequest request, OAuth2AuthorizationRequest authorizationRequest){
-//        if(authorizationRequest!=null) {
-//            String publishableKey = request.getParameter("publishable_key");
-//            if (publishableKey != null && !publishableKey.isBlank()) {
-//                HttpSession session = request.getSession();
-//                session.setAttribute(authorizationRequest.getState(),publishableKey);
-//            }
-//        }
-//        String redirectUri = request.getParameter("redirect_uri");
-//        if(redirectUri!=null&&!redirectUri.isBlank()){
-//            HttpSession session = request.getSession();
-//            session.setAttribute(authorizationRequest.getState() + "_redirect_uri", redirectUri);
-//        }
-//    }
 
     public OAuth2AuthorizationRequest customRequest(HttpServletRequest request, OAuth2AuthorizationRequest authorizationRequest){
 

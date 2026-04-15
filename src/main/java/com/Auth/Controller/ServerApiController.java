@@ -15,7 +15,7 @@ public class ServerApiController {
 
     private final ProjectService projectService;
 
-    @PostMapping
+    @PostMapping("/toggle")
     public ResponseEntity<?> toggleStatusViaKey(@RequestHeader("x-secret-key")String secretKey
             , @RequestBody Map<String, String> payload , HttpServletResponse response){
         String authyfierId = payload.get("authyfierId");
@@ -29,6 +29,23 @@ public class ServerApiController {
         }
         return ResponseEntity.ok().build();
     }
+
+      @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUserViaKey(@RequestHeader("x-secret-key")String secretKey
+            , @RequestBody Map<String, String> payload , HttpServletResponse response){
+        String authyfierId = payload.get("authyfierId");
+        if(authyfierId==null||authyfierId.isBlank()){
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            projectService.deleteUserViaKey(secretKey,payload);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+
 
 
 }
