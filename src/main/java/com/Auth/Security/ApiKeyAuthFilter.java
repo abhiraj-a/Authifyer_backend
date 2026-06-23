@@ -28,7 +28,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         String path  = request.getRequestURI();
         log.warn("incoming request uri : "+request.getRequestURI());
-        return !request.getRequestURI().startsWith("/api/v1")|| path.equals("/authifyer/.well-known/jwks.json");
+        return !request.getRequestURI().startsWith("/api/v1")|| path.equals("/authifyer/get/jwks");
     }
 
     @Override

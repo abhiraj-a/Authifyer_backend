@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/authifyer/jwt/**").permitAll()
-                        .requestMatchers("/authifyer/.well-known/jwks.json").permitAll()
+                        .requestMatchers("/authifyer/get/jwks").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
