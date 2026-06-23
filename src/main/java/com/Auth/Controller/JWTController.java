@@ -28,7 +28,7 @@ public class JWTController {
         return ResponseEntity.ok().body(Map.of("access_token",jwt));
     }
 
-    @GetMapping("/.well-known/jwks.json")
+    @GetMapping("/get/jwks")
     public ResponseEntity<?> getJwks(){
         return ResponseEntity.ok(jwksProvider.getJwks());
     }

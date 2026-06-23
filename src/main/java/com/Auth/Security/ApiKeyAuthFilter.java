@@ -26,8 +26,9 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
+        String path  = request.getRequestURI();
         log.warn("incoming request uri : "+request.getRequestURI());
-        return !request.getRequestURI().startsWith("/api/v1");
+        return !request.getRequestURI().startsWith("/api/v1")|| path.equals("/authifyer/.well-known/jwks.json");
     }
 
     @Override
