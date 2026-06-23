@@ -24,7 +24,7 @@ public class ProjectUser implements VerifyUser {
 
     private String name;
 
-    @Column
+    @Column(unique = false)
     private String email;
 
     private String password;
